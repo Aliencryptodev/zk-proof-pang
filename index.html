@@ -503,30 +503,29 @@
             });
         }
 
-        // Load backgrounds
-        function loadBackgrounds() {
-            const backgrounds = [
-                { id: 1, name: 'crypto-city' },
-                { id: 2, name: 'merkle-forest'},
-                { id: 3, name: 'hash-cavern' },
-                { id: 4, name: 'zero-knowledge-space' },
-                { id: 5, name: 'blockchain-fortress' }
-            ];
-            
-            backgrounds.forEach(bg => {
-                const img = new Image();
-                
-                img.onload = function() {
-                    backgroundImages[bg.id] = img;
-                    console.log(`✅ Loaded ${bg.name}.png`);
-                };
-                
-                img.onerror = function() {
-                    console.log(`❌ Cannot load ${bg.name}.png`);
-                };
-                
-                img.src = `assets/backgrounds/${bg.name}.png`;
-            });
+       function loadBackgrounds() {
+       const backgrounds = [
+        { id: 1, name: 'crypto-city' },
+        { id: 2, name: 'merkle-forest' },  
+        { id: 3, name: 'hash-cavern' },
+        { id: 4, name: 'zero-knowledge-space' },
+        { id: 5, name: 'blockchain-fortress' }
+         ];
+    
+         backgrounds.forEach(bg => {
+        const img = new Image();
+        
+        img.onload = function() {
+            backgroundImages[bg.id] = img;
+            console.log(`✅ Loaded ${bg.name}.png`);
+        };
+        
+        img.onerror = function() {
+            console.log(`❌ Cannot load ${bg.name}.png`);
+        };
+        
+        img.src = `assets/backgrounds/${bg.name}.png`;
+        });
         }
 
         // Create fallback sprite
