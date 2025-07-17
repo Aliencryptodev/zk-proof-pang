@@ -473,11 +473,22 @@
             orangeCharacter: null
         };
 
+        // Background images
+        const backgroundImages = {};
+
         // Load sprites
         function loadDefaultSprites() {
             const characters = ['blue', 'green', 'purple', 'pink', 'orange'];
             characters.forEach((color, index) => {
-                createFallbackSprite(color, index);
+                const img = new Image();
+                img.onload = function() {
+                    spriteSheets[`${color}Character`] = img;
+                    updatePreview(`preview${index + 1}`, img);
+                };
+                img.onerror = function() {
+                    createFallbackSprite(color, index);
+                };
+                img.src = `assets/${color}Character.png`;
             });
         }
 
@@ -523,7 +534,19 @@
             }
         }
 
+        // Load backgrounds
+        function loadBackgrounds() {
+            Object.keys(WORLDS).forEach((key) => {
+                const img = new Image();
+                img.onload = function() {
+                    backgroundImages[key] = img;
+                };
+                img.src = `assets/background_${key}.png`;
+            });
+        }
+
         loadDefaultSprites();
+        loadBackgrounds();
 
         // Show title screen
         titleScreen.style.display = 'flex';
@@ -1483,16 +1506,21 @@
 
         function drawBackground() {
             const world = WORLDS[currentWorld];
-            const gradient = offCtx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, world.background[0]);
-            gradient.addColorStop(1, world.background[1]);
-            offCtx.fillStyle = gradient;
-            offCtx.fillRect(0, 0, canvas.width, canvas.height);
+            const bgImg = backgroundImages[currentWorld];
+            if (bgImg) {
+                offCtx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+            } else {
+                const gradient = offCtx.createLinearGradient(0, 0, 0, canvas.height);
+                gradient.addColorStop(0, world.background[0]);
+                gradient.addColorStop(1, world.background[1]);
+                offCtx.fillStyle = gradient;
+                offCtx.fillRect(0, 0, canvas.width, canvas.height);
+            }
             
             // Draw particles for some worlds
             if (world.particles) {
                 offCtx.fillStyle = world.particleColor || 'rgba(255, 255, 255, 0.1)';
-                                for (let i = 0; i < 30; i++) {
+                for (let i = 0; i < 30; i++) {
                     const x = (i * 73 + Date.now() * 0.02 * (i % 3 + 1)) % canvas.width;
                     const y = (i * 37 + Date.now() * 0.01 * (i % 2 + 1)) % canvas.height;
                     const size = (i % 3) + 1;
