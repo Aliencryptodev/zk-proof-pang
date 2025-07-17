@@ -464,36 +464,44 @@
         let highScore = localStorage.getItem('zkProofPangHighScore') || 0;
         let animationId = null;
 
-        // Sprites
-        const spriteSheets = {
-            blueCharacter: null,
-            greenCharacter: null,
-            purpleCharacter: null,
-            pinkCharacter: null,
-            orangeCharacter: null
-        };
+       // Sprites
+       const spriteSheets = {
+       blueCharacter: null,
+       greenCharacter: null,
+       purpleCharacter: null,
+       pinkCharacter: null,
+       orangeCharacter: null
+       };
 
-        // Load sprites
+       // Background images - AÑADIR AQUÍ
+       const backgroundImages = {
+       1: null,
+       2: null,
+       3: null,
+       4: null,
+       5: null
+       };
+
         function loadDefaultSprites() {
-            const characters = ['blue', 'green', 'purple', 'pink', 'orange'];
-            characters.forEach((color, index) => {
-                createFallbackSprite(color, index);
-            });
-        }
-
-        function createFallbackSprite(color, index) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 32;
-            canvas.height = 32;
-            const ctx = canvas.getContext('2d');
-            
-            const colors = {
-                blue: '#3498db',
-                green: '#2ecc71',
-                purple: '#9b59b6',
-                pink: '#ff69b4',
-                orange: '#f39c12'
-            };
+        const characters = ['blue', 'green', 'purple', 'pink', 'orange'];
+    
+        characters.forEach((color, index) => {
+        const img = new Image();
+        
+        img.onload = function() {
+            spriteSheets[`${color}Character`] = img;
+            updatePreview(`preview${index + 1}`, img);
+            console.log(`✅ Loaded ${color}-character.png`);
+         };
+        
+         img.onerror = function() {
+            console.log(`❌ Cannot load ${color}-character.png, creating fallback`);
+            createFallbackSprite(color, index);
+         };
+        
+         img.src = `assets/sprites/${color}-character.png`;
+         });
+         }
             
             ctx.fillStyle = colors[color];
             ctx.fillRect(8, 12, 16, 16);
