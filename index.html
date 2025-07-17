@@ -369,7 +369,6 @@
         P - Pause<br>
         F - Fullscreen
     </div>
-
     <script>
         // Game variables
         const gameContainer = document.getElementById('gameContainer');
@@ -464,44 +463,86 @@
         let highScore = localStorage.getItem('zkProofPangHighScore') || 0;
         let animationId = null;
 
-       // Sprites
-       const spriteSheets = {
-       blueCharacter: null,
-       greenCharacter: null,
-       purpleCharacter: null,
-       pinkCharacter: null,
-       orangeCharacter: null
-       };
+        // Sprites
+        const spriteSheets = {
+            blueCharacter: null,
+            greenCharacter: null,
+            purpleCharacter: null,
+            pinkCharacter: null,
+            orangeCharacter: null
+        };
 
-       // Background images - AÑADIR AQUÍ
-       const backgroundImages = {
-       1: null,
-       2: null,
-       3: null,
-       4: null,
-       5: null
-       };
+        // Background images
+        const backgroundImages = {
+            1: null,
+            2: null,
+            3: null,
+            4: null,
+            5: null
+        };
 
+        // Load sprites
         function loadDefaultSprites() {
-        const characters = ['blue', 'green', 'purple', 'pink', 'orange'];
-    
-        characters.forEach((color, index) => {
-        const img = new Image();
-        
-        img.onload = function() {
-            spriteSheets[`${color}Character`] = img;
-            updatePreview(`preview${index + 1}`, img);
-            console.log(`✅ Loaded ${color}-character.png`);
-         };
-        
-         img.onerror = function() {
-            console.log(`❌ Cannot load ${color}-character.png, creating fallback`);
-            createFallbackSprite(color, index);
-         };
-        
-         img.src = `assets/sprites/${color}-character.png`;
-         });
-         }
+            const characters = ['blue', 'green', 'purple', 'pink', 'orange'];
+            
+            characters.forEach((color, index) => {
+                const img = new Image();
+                
+                img.onload = function() {
+                    spriteSheets[`${color}Character`] = img;
+                    updatePreview(`preview${index + 1}`, img);
+                    console.log(`✅ Loaded ${color}-character.png`);
+                };
+                
+                img.onerror = function() {
+                    console.log(`❌ Cannot load ${color}-character.png, creating fallback`);
+                    createFallbackSprite(color, index);
+                };
+                
+                img.src = `assets/sprites/${color}-character.png`;
+            });
+        }
+
+        // Load backgrounds
+        function loadBackgrounds() {
+            const backgrounds = [
+                { id: 1, name: 'crypto-city' },
+                { id: 2, name: 'merkle-forest' },
+                { id: 3, name: 'hash-cavern' },
+                { id: 4, name: 'zero-knowledge-space' },
+                { id: 5, name: 'blockchain-fortress' }
+            ];
+            
+            backgrounds.forEach(bg => {
+                const img = new Image();
+                
+                img.onload = function() {
+                    backgroundImages[bg.id] = img;
+                    console.log(`✅ Loaded ${bg.name}.png`);
+                };
+                
+                img.onerror = function() {
+                    console.log(`❌ Cannot load ${bg.name}.png`);
+                };
+                
+                img.src = `assets/backgrounds/${bg.name}.png`;
+            });
+        }
+
+        // Create fallback sprite
+        function createFallbackSprite(color, index) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 32;
+            canvas.height = 32;
+            const ctx = canvas.getContext('2d');
+            
+            const colors = {
+                blue: '#3498db',
+                green: '#2ecc71',
+                purple: '#9b59b6',
+                pink: '#ff69b4',
+                orange: '#f39c12'
+            };
             
             ctx.fillStyle = colors[color];
             ctx.fillRect(8, 12, 16, 16);
@@ -531,7 +572,9 @@
             }
         }
 
+        // Initialize
         loadDefaultSprites();
+        loadBackgrounds();
 
         // Show title screen
         titleScreen.style.display = 'flex';
@@ -545,7 +588,7 @@
             }
         });
 
-        // Level designs (all 10)
+        // Level designs
         const LEVEL_DESIGNS = [
             {
                 name: "Simple Start",
@@ -633,7 +676,7 @@
             }
         ];
 
-        // Worlds (all 5)
+        // Worlds
         const WORLDS = {
             1: {
                 name: "Crypto City",
@@ -671,7 +714,8 @@
             }
         };
 
-        // Particle class
+
+                // Particle class
         class Particle {
             constructor(x, y, vx, vy, color, size = 3) {
                 this.x = x;
@@ -930,7 +974,7 @@
 
             shoot() {
                 const shootX = this.x + this.width / 2;
-                const shootY = this.y; // Shoot from top of player
+                const shootY = this.y;
                 
                 switch(this.weaponType) {
                     case 'normal':
@@ -1035,7 +1079,6 @@
                     }
                 }
                 
-                // Update bottom position with player
                 if (player) {
                     this.bottomY = player.y;
                 }
@@ -1052,7 +1095,6 @@
                 offCtx.lineTo(this.x, this.topY);
                 offCtx.stroke();
                 
-                // Draw hook
                 if (!this.hooked || this.isGrapple) {
                     offCtx.save();
                     offCtx.translate(this.x, this.topY);
@@ -1099,7 +1141,6 @@
             }
 
             draw() {
-                // Draw trail
                 this.trail.forEach((pos, idx) => {
                     offCtx.globalAlpha = idx / this.trail.length * 0.5;
                     offCtx.beginPath();
@@ -1109,7 +1150,6 @@
                 });
                 offCtx.globalAlpha = 1;
                 
-                // Draw bullet
                 offCtx.beginPath();
                 offCtx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 offCtx.fillStyle = this.color;
@@ -1141,13 +1181,11 @@
                 
                 this.vy += BALL_GRAVITY;
                 
-                // Limit speeds
                 if (Math.abs(this.vx) > BALL_MAX_SPEED) {
                     this.vx = Math.sign(this.vx) * BALL_MAX_SPEED;
                 }
                 if (this.vy > 20) this.vy = 20;
                 
-                // Ensure minimum horizontal speed
                 if (Math.abs(this.vx) < BALL_MIN_SPEED) {
                     this.vx = Math.sign(this.vx || 1) * BALL_MIN_SPEED;
                 }
@@ -1155,7 +1193,6 @@
                 this.x += this.vx;
                 this.y += this.vy;
                 
-                // Wall bounces
                 if (this.x - this.radius < 0) {
                     this.x = this.radius;
                     this.vx = Math.abs(this.vx);
@@ -1165,26 +1202,22 @@
                     this.vx = -Math.abs(this.vx);
                 }
                 
-                // Ceiling bounce
                 if (this.y - this.radius < 0) {
                     this.y = this.radius;
                     this.vy = Math.abs(this.vy) * this.bounceFactor;
                 }
                 
-                // Platform collision
                 for (let plat of platforms) {
                     if (this.checkPlatformCollision(plat)) {
                         if (this.vy > 0 && this.y - this.radius < plat.y) {
                             this.y = plat.y - this.radius;
                             
-                            // Ensure minimum bounce height
                             let bounceVy = -Math.abs(this.vy) * this.bounceFactor;
                             if (bounceVy > this.minBounceVelocity) {
                                 bounceVy = this.minBounceVelocity;
                             }
                             this.vy = bounceVy;
                             
-                            // Add some randomness to prevent getting stuck
                             if (Math.abs(this.vx) < BALL_MIN_SPEED) {
                                 this.vx = (Math.random() - 0.5) * 3;
                             }
@@ -1205,7 +1238,6 @@
                 offCtx.translate(this.x, this.y);
                 
                 if (this.frozen) {
-                    // Frozen effect
                     offCtx.globalAlpha = 0.8;
                     offCtx.fillStyle = '#90caf9';
                 } else {
@@ -1216,7 +1248,6 @@
                 offCtx.arc(0, 0, this.radius, 0, Math.PI * 2);
                 offCtx.fill();
                 
-                // Add highlight
                 offCtx.beginPath();
                 offCtx.arc(-this.radius/3, -this.radius/3, this.radius/3, 0, Math.PI * 2);
                 offCtx.fillStyle = 'rgba(255, 255, 255, 0.3)';
@@ -1304,7 +1335,6 @@
                 offCtx.translate(this.x, this.y + this.bounce);
                 offCtx.rotate(this.rotation);
                 
-                // Draw glowing circle
                 offCtx.beginPath();
                 offCtx.arc(0, 0, this.radius, 0, Math.PI * 2);
                 offCtx.fillStyle = this.colors[this.type];
@@ -1314,7 +1344,6 @@
                 offCtx.lineWidth = 2;
                 offCtx.stroke();
                 
-                // Draw icon
                 offCtx.rotate(-this.rotation);
                 offCtx.fillStyle = 'white';
                 offCtx.font = 'bold 24px Arial';
@@ -1326,7 +1355,9 @@
             }
         }
 
-        // Controls
+
+
+                // Controls
         const keys = {};
         window.addEventListener('keydown', e => {
             keys[e.key] = true;
@@ -1491,16 +1522,25 @@
 
         function drawBackground() {
             const world = WORLDS[currentWorld];
-            const gradient = offCtx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, world.background[0]);
-            gradient.addColorStop(1, world.background[1]);
-            offCtx.fillStyle = gradient;
-            offCtx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Try to use background image
+            if (backgroundImages[currentWorld]) {
+                offCtx.drawImage(backgroundImages[currentWorld], 0, 0, canvas.width, canvas.height);
+                offCtx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                offCtx.fillRect(0, 0, canvas.width, canvas.height);
+            } else {
+                // Use gradient as fallback
+                const gradient = offCtx.createLinearGradient(0, 0, 0, canvas.height);
+                gradient.addColorStop(0, world.background[0]);
+                gradient.addColorStop(1, world.background[1]);
+                offCtx.fillStyle = gradient;
+                offCtx.fillRect(0, 0, canvas.width, canvas.height);
+            }
             
             // Draw particles for some worlds
             if (world.particles) {
                 offCtx.fillStyle = world.particleColor || 'rgba(255, 255, 255, 0.1)';
-                                for (let i = 0; i < 30; i++) {
+                for (let i = 0; i < 30; i++) {
                     const x = (i * 73 + Date.now() * 0.02 * (i % 3 + 1)) % canvas.width;
                     const y = (i * 37 + Date.now() * 0.01 * (i % 2 + 1)) % canvas.height;
                     const size = (i % 3) + 1;
@@ -1748,6 +1788,13 @@
             player = null;
             animationId = null;
         }
+
+        // Debug para verificar carga de assets
+        setTimeout(() => {
+            console.log('=== ASSET DEBUG ===');
+            console.log('Sprites:', Object.keys(spriteSheets).filter(k => spriteSheets[k] !== null));
+            console.log('Backgrounds:', Object.keys(backgroundImages).filter(k => backgroundImages[k] !== null));
+        }, 2000);
     </script>
 </body>
 </html>
