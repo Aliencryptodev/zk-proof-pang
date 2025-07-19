@@ -1327,8 +1327,8 @@
                     }
                 }
 
-                this.idleAnimation += 0.05;
-                this.breathScale = 1 + Math.sin(this.idleAnimation) * 0.02;
+                this.idleAnimation += 0.01;
+                this.breathScale = 1 + Math.sin(this.idleAnimation) * 0.01;
                 }
 
             shoot() {
@@ -1381,7 +1381,7 @@
               offCtx.imageSmoothingEnabled = false;
         
              // Efecto de flotación vertical (sube y baja suavemente)
-             const floatY = Math.sin(this.idleAnimation) * 2;
+             const floatY = Math.sin(this.idleAnimation) * 0.5;
         
              // Aplicar escala de respiración
             const drawWidth = this.width * this.breathScale;
