@@ -668,13 +668,26 @@
         titleScreen.style.display = 'flex';
         let hasStarted = false;
 
-        window.addEventListener('keydown', (e) => {
-            if (!hasStarted && titleScreen.style.display === 'flex') {
-                hasStarted = true;
-                titleScreen.style.display = 'none';
-                menu.style.display = 'flex';
-            }
-        });
+        // Función para iniciar el juego
+        function startGameFromTitle() {
+         if (!hasStarted && titleScreen.style.display === 'flex') {
+        hasStarted = true;
+        titleScreen.style.display = 'none';
+        menu.style.display = 'flex';
+         }
+        }
+
+        // Event listener para teclado (PC)
+        window.addEventListener('keydown', startGameFromTitle);
+
+       // NUEVO: Event listener para touch (móviles)
+       titleScreen.addEventListener('touchstart', (e) => {
+       e.preventDefault();
+       startGameFromTitle();
+       });
+
+       // NUEVO: Event listener para click (tanto PC como móvil)
+       titleScreen.addEventListener('click', startGameFromTitle);
         // Level designs
         const LEVEL_DESIGNS = [
             {
