@@ -650,15 +650,20 @@
         }
 
        function loadBackgrounds() {
-       const backgrounds = [
-        { id: 1, name: 'crypto-city' },
-        { id: 2, name: 'merkle-forest' },  
-        { id: 3, name: 'hash-cavern' },
-        { id: 4, name: 'zero-knowledge-space' },
-        { id: 5, name: 'blockchain-fortress' }
+        const backgrounds = [
+        { id: 1, name: '@cryptoremixg', artist: 'CryptoRemixG' },
+        { id: 2, name: '@dameloxbt', artist: 'DameLoxBT' },
+        { id: 3, name: '@Exyclee', artist: 'Exyclee' },
+        { id: 4, name: '@HvmidTheProver', artist: 'HvmidTheProver' },
+        { id: 5, name: '@imani_cc', artist: 'Imani CC' },
+        { id: 6, name: '@joesofth3art', artist: 'JoesOfTh3Art' },
+        { id: 7, name: '@MR888ALL', artist: 'MR888ALL' },
+        { id: 8, name: '@Totosha1284', artist: 'Totosha1284' },
+        { id: 9, name: '@xtraaxtraa', artist: 'XtraAXtraA' },
+        { id: 10, name: '@0xJorex', artist: '0xJorex' }
          ];
     
-         backgrounds.forEach(bg => {
+        backgrounds.forEach(bg => {
         const img = new Image();
         
         img.onload = function() {
@@ -833,43 +838,87 @@
             }
         ];
 
-        // Worlds
+        // Worlds con artistas
         const WORLDS = {
-            1: {
-                name: "Crypto City",
-                background: ['#0f3460', '#16213e'],
-                platformColor: '#5e548e',
-                particles: true,
-                particleColor: 'rgba(94, 84, 142, 0.1)'
-            },
-            2: {
-                name: "Merkle Forest",
-                background: ['#1b5e20', '#2e7d32'],
-                platformColor: '#4e342e',
-                particles: true,
-                particleColor: 'rgba(46, 125, 50, 0.1)'
-            },
-            3: {
-                name: "Hash Cavern",
-                background: ['#37474f', '#263238'],
-                platformColor: '#ff6f00',
-                particles: false
-            },
-            4: {
-                name: "Zero-Knowledge Space",
-                background: ['#1a237e', '#000051'],
-                platformColor: '#00bcd4',
-                particles: true,
-                particleColor: 'rgba(255, 255, 255, 0.3)'
-            },
-            5: {
-                name: "Blockchain Fortress",
-                background: ['#4a148c', '#6a1b9a'],
-                platformColor: '#ffd600',
-                particles: true,
-                particleColor: 'rgba(255, 214, 0, 0.1)'
-            }
-        };
+    1: {
+        name: "World 1",
+        artist: "@cryptoremixg",
+        background: ['#0f3460', '#16213e'],
+        platformColor: '#5e548e',
+        particles: true,
+        particleColor: 'rgba(94, 84, 142, 0.1)'
+    },
+    2: {
+        name: "World 2",
+        artist: "@dameloxbt",
+        background: ['#1b5e20', '#2e7d32'],
+        platformColor: '#4e342e',
+        particles: true,
+        particleColor: 'rgba(46, 125, 50, 0.1)'
+    },
+    3: {
+        name: "World 3",
+        artist: "@Exyclee",
+        background: ['#37474f', '#263238'],
+        platformColor: '#ff6f00',
+        particles: false
+    },
+    4: {
+        name: "World 4",
+        artist: "@HvmidTheProver",
+        background: ['#1a237e', '#000051'],
+        platformColor: '#00bcd4',
+        particles: true,
+        particleColor: 'rgba(255, 255, 255, 0.3)'
+    },
+    5: {
+        name: "World 5",
+        artist: "@imani_cc",
+        background: ['#4a148c', '#6a1b9a'],
+        platformColor: '#ffd600',
+        particles: true,
+        particleColor: 'rgba(255, 214, 0, 0.1)'
+    },
+    6: {
+        name: "World 6",
+        artist: "@joesofth3art",
+        background: ['#b71c1c', '#d32f2f'],
+        platformColor: '#ffeb3b',
+        particles: true,
+        particleColor: 'rgba(255, 235, 59, 0.1)'
+    },
+    7: {
+        name: "World 7",
+        artist: "@MR888ALL",
+        background: ['#004d40', '#00695c'],
+        platformColor: '#ff5252',
+        particles: true,
+        particleColor: 'rgba(255, 82, 82, 0.1)'
+    },
+    8: {
+        name: "World 8",
+        artist: "@Totosha1284",
+        background: ['#e65100', '#ff6d00'],
+        platformColor: '#1de9b6',
+        particles: false
+    },
+    9: {
+        name: "World 9",
+        artist: "@xtraaxtraa",
+        background: ['#3e2723', '#5d4037'],
+        platformColor: '#7c4dff',
+        particles: true,
+        particleColor: 'rgba(124, 77, 255, 0.1)'
+    },
+    10: {
+        name: "World 10",
+        artist: "@0xJorex",
+        background: ['#000000', '#212121'],
+        platformColor: '#ff4081',
+        particles: true,
+        particleColor: 'rgba(255, 64, 129, 0.1)'
+    }
+};
 
         // Particle class
         class Particle {
@@ -1817,10 +1866,10 @@ function createMobileControls() {
             level = lvl;
             levelTransitioning = false;
             
-            const newWorld = Math.min(5, Math.floor((lvl - 1) / 4) + 1);
-            if (newWorld !== currentWorld) {
-                loadWorld(newWorld);
-            }
+        const newWorld = Math.min(10, Math.floor((lvl - 1) / 2) + 1);
+        if (newWorld !== currentWorld) {
+        loadWorld(newWorld);
+        }
             
             const designIndex = (lvl - 1) % LEVEL_DESIGNS.length;
             const levelDesign = LEVEL_DESIGNS[designIndex];
@@ -1960,37 +2009,40 @@ function createMobileControls() {
         }
 
         function drawUI() {
-            // UI Background
-            offCtx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-            offCtx.fillRect(0, 0, canvas.width, 50);
-            
-            // Lives
-            for (let i = 0; i < MAX_LIVES; i++) {
-                offCtx.fillStyle = i < lives ? '#e74c3c' : 'rgba(231, 76, 60, 0.3)';
-                offCtx.beginPath();
-                offCtx.arc(25 + i * 35, 25, 12, 0, Math.PI * 2);
-                offCtx.fill();
-            }
-            
-            // Text
-            offCtx.fillStyle = 'white';
-            offCtx.font = 'bold 18px Orbitron';
-            offCtx.textAlign = 'left';
-            offCtx.fillText(`Score: ${score}`, 200, 30);
-            offCtx.fillText(`Level: ${level}`, 350, 30);
-            offCtx.fillText(`${WORLDS[currentWorld].name}`, 500, 30);
-            
-            // Weapon type
-            offCtx.textAlign = 'right';
-            let weaponText = player.weaponType.charAt(0).toUpperCase() + player.weaponType.slice(1);
-            offCtx.fillText(`Weapon: ${weaponText}`, canvas.width - 15, 30);
-            
-            // Invulnerable bar
-            if (invulnerable) {
-                offCtx.fillStyle = `rgba(255, 255, 255, ${0.3 + Math.sin(Date.now() * 0.01) * 0.3})`;
-                offCtx.fillRect(0, 50, canvas.width * (invulnerableTime / 120), 3);
-            }
-        }
+    // UI Background
+    offCtx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    offCtx.fillRect(0, 0, canvas.width, 50);
+    
+    // Lives
+    for (let i = 0; i < MAX_LIVES; i++) {
+        offCtx.fillStyle = i < lives ? '#e74c3c' : 'rgba(231, 76, 60, 0.3)';
+        offCtx.beginPath();
+        offCtx.arc(25 + i * 35, 25, 12, 0, Math.PI * 2);
+        offCtx.fill();
+    }
+    
+    // Text
+    offCtx.fillStyle = 'white';
+    offCtx.font = 'bold 18px Orbitron';
+    offCtx.textAlign = 'left';
+    offCtx.fillText(`Score: ${score}`, 200, 30);
+    offCtx.fillText(`Level: ${level}`, 350, 30);
+    
+    // NUEVO: Mostrar artista
+    const world = WORLDS[currentWorld];
+    offCtx.fillText(`Art: ${world.artist}`, 500, 30);
+    
+    // Weapon type
+    offCtx.textAlign = 'right';
+    let weaponText = player.weaponType.charAt(0).toUpperCase() + player.weaponType.slice(1);
+    offCtx.fillText(`Weapon: ${weaponText}`, canvas.width - 15, 30);
+    
+    // Invulnerable bar
+    if (invulnerable) {
+        offCtx.fillStyle = `rgba(255, 255, 255, ${0.3 + Math.sin(Date.now() * 0.01) * 0.3})`;
+        offCtx.fillRect(0, 50, canvas.width * (invulnerableTime / 120), 3);
+    }
+}
 
         function handleCollisions() {
             if (invulnerable) {
