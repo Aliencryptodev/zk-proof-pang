@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="ZK Proof Pang - A Web3 adventure game. Verify cryptographic proofs by destroying balls with harpoons.">
     <meta name="keywords" content="web3, game, blockchain, zk proof, crypto, pang">
     <meta name="author" content="Aliencryptodev">
@@ -49,6 +49,30 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            touch-action: none; /* NUEVO: para móviles */
+        }
+        
+        /* NUEVO: Estilos para móviles */
+        @media (max-width: 768px) {
+            body {
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            
+            canvas {
+                max-width: 95vw;
+                max-height: 70vh;
+            }
+            
+            #mobile-controls {
+                background: rgba(0, 0, 0, 0.2);
+            }
+            
+            #mobile-controls > div:active {
+                transform: scale(0.95);
+                opacity: 0.8;
+            }
         }
         
         #titleScreen, #menu { 
@@ -370,13 +394,78 @@
         F - Fullscreen
     </div>
     <script>
+        // NUEVO: Sistema de sonido
+        class SoundManager {
+            constructor() {
+                this.sounds = {
+                    shoot: new Audio('sounds/shoot.mp3'),
+                    pop: new Audio('sounds/pop.mp3'),
+                    gameover: new Audio('sounds/gameover.mp3'),
+                    background: new Audio('sounds/background.mp3')
+                };
+                
+                this.sounds.shoot.volume = 0.3;
+                this.sounds.pop.volume = 0.4;
+                this.sounds.gameover.volume = 0.5;
+                this.sounds.background.volume = 0.2;
+                this.sounds.background.loop = true;
+                
+                this.muted = false;
+            }
+            
+            play(soundName) {
+                if (!this.muted && this.sounds[soundName]) {
+                    this.sounds[soundName].currentTime = 0;
+                    this.sounds[soundName].play().catch(e => console.log('Error playing sound:', e));
+                }
+            }
+            
+            toggleMute() {
+                this.muted = !this.muted;
+                if (this.muted) {
+                    this.sounds.background.pause();
+                } else {
+                    this.sounds.background.play().catch(e => console.log('Error playing background:', e));
+                }
+                return this.muted;
+            }
+            
+            startBackground() {
+                if (!this.muted) {
+                    this.sounds.background.play().catch(e => console.log('Error playing background:', e));
+                }
+            }
+        }
+
+        const soundManager = new SoundManager();
+
+        // NUEVO: Variables para controles móviles
+        let touchStartX = 0;
+        let touchMoveX = 0;
+        let isTouching = false;
+
+        // NUEVO: Detectar dispositivo móvil
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        // NUEVO: Función para compartir en Twitter
+        function shareOnTwitter() {
+            const text = `¡Acabo de conseguir ${score} puntos en ZK Proof Pang! 🎮🎯 ¿Puedes superarlo?`;
+            const url = window.location.href;
+            const hashtags = 'ZKProofPang,WebGame,CryptoGaming';
+            
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=${hashtags}`;
+            
+            window.open(twitterUrl, '_blank', 'width=550,height=420');
+        }
+
         // Game variables
         const gameContainer = document.getElementById('gameContainer');
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         ctx.imageSmoothingEnabled = false;
-
-        // Canvas setup
+                // Canvas setup
         function resizeCanvas() {
             const aspectRatio = 1000 / 700;
             let width = window.innerWidth * 0.9;
@@ -586,7 +675,6 @@
                 menu.style.display = 'flex';
             }
         });
-
         // Level designs
         const LEVEL_DESIGNS = [
             {
@@ -713,8 +801,7 @@
             }
         };
 
-
-                // Particle class
+        // Particle class
         class Particle {
             constructor(x, y, vx, vy, color, size = 3) {
                 this.x = x;
@@ -889,6 +976,9 @@
             }
 
             splitBall(ball, explosive = false) {
+                // NUEVO: Sonido al explotar bola
+                soundManager.play('pop');
+                
                 if (ball.sizeIndex < BALL_SIZES.length - 1) {
                     const speedMult = explosive ? 1.5 : 1;
                     const newSize = ball.sizeIndex + 1;
@@ -974,6 +1064,9 @@
             shoot() {
                 const shootX = this.x + this.width / 2;
                 const shootY = this.y;
+                
+                // NUEVO: Sonido de disparo
+                soundManager.play('shoot');
                 
                 switch(this.weaponType) {
                     case 'normal':
@@ -1155,7 +1248,6 @@
                 offCtx.fill();
             }
         }
-
         // Ball class
         class Ball {
             constructor(x, y, sizeIndex, vx = null, vy = null) {
@@ -1354,9 +1446,7 @@
             }
         }
 
-
-
-                // Controls
+        // Controls
         const keys = {};
         window.addEventListener('keydown', e => {
             keys[e.key] = true;
@@ -1373,6 +1463,154 @@
         });
         window.addEventListener('keyup', e => keys[e.key] = false);
 
+        // NUEVO: Eventos táctiles para el canvas
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchMoveX = touch.clientX;
+            isTouching = true;
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (isTouching && player) {
+                const touch = e.touches[0];
+                touchMoveX = touch.clientX;
+                
+                const deltaX = touchMoveX - touchStartX;
+                player.x += deltaX * 0.5;
+                
+                player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+                
+                touchStartX = touchMoveX;
+            }
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            isTouching = false;
+        });
+
+        // NUEVO: Crear controles móviles
+        function createMobileControls() {
+            if (isMobileDevice()) {
+                const controlsDiv = document.createElement('div');
+                controlsDiv.id = 'mobile-controls';
+                controlsDiv.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    left: 0;
+                    right: 0;
+                    height: 150px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 0 20px;
+                    pointer-events: none;
+                    z-index: 1000;
+                `;
+                
+                const leftBtn = document.createElement('div');
+                leftBtn.style.cssText = `
+                    width: 80px;
+                    height: 80px;
+                    background: rgba(255, 255, 255, 0.3);
+                    border: 2px solid white;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 30px;
+                    color: white;
+                    pointer-events: all;
+                    user-select: none;
+                `;
+                leftBtn.innerHTML = '←';
+                
+                const rightBtn = document.createElement('div');
+                rightBtn.style.cssText = leftBtn.style.cssText;
+                rightBtn.innerHTML = '→';
+                
+                const fireBtn = document.createElement('div');
+                fireBtn.style.cssText = `
+                    width: 100px;
+                    height: 100px;
+                    background: rgba(255, 0, 0, 0.3);
+                    border: 2px solid red;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 20px;
+                    color: white;
+                    pointer-events: all;
+                    user-select: none;
+                `;
+                fireBtn.innerHTML = 'FIRE';
+                
+                controlsDiv.appendChild(leftBtn);
+                controlsDiv.appendChild(fireBtn);
+                controlsDiv.appendChild(rightBtn);
+                document.body.appendChild(controlsDiv);
+                
+                leftBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    keys['a'] = true;
+                });
+                leftBtn.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    keys['a'] = false;
+                });
+                
+                rightBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    keys['d'] = true;
+                });
+                rightBtn.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    keys['d'] = false;
+                });
+                
+                fireBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    keys[' '] = true;
+                });
+                fireBtn.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    keys[' '] = false;
+                });
+            }
+        }
+
+        // NUEVO: Crear botón de mute
+        function createMuteButton() {
+            const muteBtn = document.createElement('button');
+            muteBtn.style.cssText = `
+                position: fixed;
+                top: 60px;
+                right: 10px;
+                width: 50px;
+                height: 50px;
+                background: rgba(0, 0, 0, 0.5);
+                border: 2px solid white;
+                border-radius: 50%;
+                color: white;
+                font-size: 20px;
+                cursor: pointer;
+                z-index: 1002;
+                font-family: 'Orbitron', monospace;
+            `;
+            muteBtn.innerHTML = '🔊';
+            
+            muteBtn.addEventListener('click', () => {
+                const isMuted = soundManager.toggleMute();
+                muteBtn.innerHTML = isMuted ? '🔇' : '🔊';
+            });
+            
+            document.body.appendChild(muteBtn);
+        }
+
         // Show powerup notification
         function showPowerupNotification(text) {
             const notification = document.createElement('div');
@@ -1384,7 +1622,6 @@
                 notification.remove();
             }, 2500);
         }
-
         // Game functions
         function startGame(id, color, spriteType = null) {
             menu.style.display = 'none';
@@ -1412,6 +1649,10 @@
             
             loadWorld(1);
             spawnLevel(1);
+            
+            // NUEVO: Iniciar música
+            soundManager.startBackground();
+            
             gameLoop();
         }
 
@@ -1679,7 +1920,6 @@
                 }
             }
         }
-
         function gameLoop() {
             if (paused) {
                 animationId = null;
@@ -1757,17 +1997,44 @@
             animationId = requestAnimationFrame(gameLoop);
         }
 
+        // MODIFICADO: showGameOver con botón de Twitter
         function showGameOver() {
             gameOverScreen.style.display = 'block';
             document.getElementById('gameOverTitle').textContent = gameWon ? 'Victory! All proofs verified!' : 'Game Over!';
             document.getElementById('finalScore').textContent = `Score: ${score}`;
             document.getElementById('levelReached').textContent = `Level: ${level}`;
             
+            // NUEVO: Sonido game over
+            soundManager.sounds.background.pause();
+            soundManager.play('gameover');
+            
             if (score > highScore) {
                 highScore = score;
                 localStorage.setItem('zkProofPangHighScore', highScore);
             }
             document.getElementById('highScore').textContent = `High Score: ${highScore}`;
+            
+            // NUEVO: Añadir botón de Twitter si no existe
+            if (!document.getElementById('twitterBtn')) {
+                const twitterBtn = document.createElement('button');
+                twitterBtn.id = 'twitterBtn';
+                twitterBtn.style.cssText = `
+                    padding: 15px 30px;
+                    font-size: 18px;
+                    cursor: pointer;
+                    background: linear-gradient(135deg, #1DA1F2 0%, #0e71c8 100%);
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    margin-top: 10px;
+                    font-family: 'Orbitron', monospace;
+                `;
+                twitterBtn.textContent = 'Share on Twitter';
+                twitterBtn.onclick = shareOnTwitter;
+                
+                const restartBtn = document.getElementById('restartBtn');
+                restartBtn.parentNode.insertBefore(twitterBtn, restartBtn.nextSibling);
+            }
         }
 
         function restartGame() {
@@ -1788,12 +2055,28 @@
             animationId = null;
         }
 
+        // NUEVO: Inicialización al cargar DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            createMobileControls();
+            createMuteButton();
+            
+            // Iniciar música en móvil al primer toque
+            if (isMobileDevice()) {
+                document.addEventListener('touchstart', function initAudio() {
+                    soundManager.startBackground();
+                    document.removeEventListener('touchstart', initAudio);
+                }, { once: true });
+            }
+        });
+
         // Debug para verificar carga de assets
         setTimeout(() => {
             console.log('=== ASSET DEBUG ===');
             console.log('Sprites:', Object.keys(spriteSheets).filter(k => spriteSheets[k] !== null));
             console.log('Backgrounds:', Object.keys(backgroundImages).filter(k => backgroundImages[k] !== null));
+            console.log('Sound system initialized');
+            console.log('Mobile controls:', isMobileDevice() ? 'enabled' : 'disabled');
         }, 2000);
     </script>
 </body>
-</html>
+</html>        
