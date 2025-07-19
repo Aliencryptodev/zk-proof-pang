@@ -1368,44 +1368,40 @@
                 }
               }
 
-            draw() {
-            if (this.spriteSheet) {
-            offCtx.save();
+           draw() {
+    if (this.spriteSheet) {
+        offCtx.save();
         
-            // Desactivar suavizado para mantener el pixel art nítido
-            offCtx.imageSmoothingEnabled = false;
+        // Desactivar suavizado para mantener el pixel art nítido
+        offCtx.imageSmoothingEnabled = false;
         
-            // Sombra para profundidad
-            offCtx.globalAlpha = 0.3;
-            offCtx.fillStyle = 'black';
-            offCtx.fillRect(this.x + 10, this.y + this.height - 10, this.width - 20, 10);
-            offCtx.globalAlpha = 1;
+          // QUITAMOS LA SOMBRA - Ya no hay código de sombra aquí
         
-             if (!this.facingRight) {
+          if (!this.facingRight) {
             offCtx.translate(this.x + this.width, this.y);
             offCtx.scale(-1, 1);
             // Dibujamos el sprite 96x96 directamente sin escalar
             offCtx.drawImage(this.spriteSheet, 0, 0, 96, 96, 0, 0, this.width, this.height);
-            } else {
+          } else {
             offCtx.drawImage(this.spriteSheet, 0, 0, 96, 96, this.x, this.y, this.width, this.height);
-            }
-            offCtx.restore();
-            } else {
-            offCtx.fillStyle = this.color;
-            offCtx.fillRect(this.x, this.y, this.width, this.height);
-           }
+          }
+          offCtx.restore();
+          } else {
+          offCtx.fillStyle = this.color;
+          offCtx.fillRect(this.x, this.y, this.width, this.height);
+          }
     
            if (this.shieldActive) {
-           offCtx.save();
-           offCtx.globalAlpha = 0.3 + Math.sin(Date.now() * 0.005) * 0.1;
-           offCtx.strokeStyle = '#00bcd4';
-           offCtx.lineWidth = 3;
-           offCtx.beginPath();
-           offCtx.arc(this.x + this.width/2, this.y + this.height/2, this.width, 0, Math.PI * 2);
-           offCtx.stroke();
-           offCtx.restore();
+            offCtx.save();
+            offCtx.globalAlpha = 0.3 + Math.sin(Date.now() * 0.005) * 0.1;
+            offCtx.strokeStyle = '#00bcd4';
+            offCtx.lineWidth = 3;
+            offCtx.beginPath();
+            offCtx.arc(this.x + this.width/2, this.y + this.height/2, this.width, 0, Math.PI * 2);
+            offCtx.stroke();
+            offCtx.restore();
+            }
            }
-          }
          }    
         // Wire class
         class Wire {
