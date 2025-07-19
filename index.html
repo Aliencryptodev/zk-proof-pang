@@ -41,39 +41,39 @@
         }
         
         canvas { 
-            display: block;
-            border: 3px solid #0f3460; 
-            box-shadow: 0 0 30px rgba(94, 84, 142, 0.8);
-            image-rendering: pixelated;
-            border-radius: 10px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            touch-action: none; /* NUEVO: para móviles */
+        display: block;
+        border: 3px solid #FE11C5; /* Cambiado de #0f3460 a rosa */
+        box-shadow: 0 0 30px rgba(254, 17, 197, 0.8); /* Cambiado a sombra rosa */
+        image-rendering: pixelated;
+        border-radius: 10px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        touch-action: none;
         }
         
-   /* NUEVO: Estilos para móviles */
-@media (max-width: 768px) {
-    body {
+       /* NUEVO: Estilos para móviles */
+        @media (max-width: 768px) {
+        body {
         margin: 0;
         padding: 0;
         overflow: hidden;
-    }
+        }
     
-    canvas {
+        canvas {
         max-width: 95vw;
         max-height: 70vh;
-    }
+        } 
     
-    #mobile-controls {
+        #mobile-controls {
         background: rgba(0, 0, 0, 0.2);
-    }
+        }
     
-    #mobile-controls > div:active {
+        #mobile-controls > div:active {
         transform: scale(0.95);
         opacity: 0.8;
-    }
+        }
     
     /* IMPORTANTE: Hacer el menú scrolleable */
     #menu {
@@ -252,25 +252,46 @@
             position: relative;
         }
         
-        .character-btn { 
-            padding: 20px;
-            font-size: 14px; 
-            cursor: pointer; 
-            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
-            color: white; 
-            border: 2px solid #5e548e;
-            border-radius: 15px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            font-family: 'Orbitron', monospace;
+       .character-btn { 
+       padding: 20px;
+       font-size: 14px; 
+       cursor: pointer; 
+       background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+       color: white; 
+       border: 2px solid #5e548e;
+       border-radius: 15px;
+       transition: all 0.3s ease;
+       position: relative;
+       overflow: hidden;
+       font-family: 'Orbitron', monospace;
+       }
+
+       /* Colores específicos para cada personaje */
+       .character-btn[data-character="blue"] {
+       border-color: #3498db;
+       }
+
+       .character-btn[data-character="green"] {
+       border-color: #2ecc71;
+       }
+
+        .character-btn[data-character="purple"] {
+        border-color: #9b59b6;
         }
-        
-        .character-btn:hover { 
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(94, 84, 142, 0.4);
-            border-color: #e94560;
+
+        .character-btn[data-character="pink"] {
+        border-color: #ff69b4;
         }
+
+        .character-btn[data-character="orange"] {
+        border-color: #f39c12;
+        }
+
+         .character-btn:hover { 
+         transform: translateY(-5px);
+         box-shadow: 0 15px 30px rgba(254, 17, 197, 0.4); /* Sombra rosa */
+         border-width: 3px;
+         }
         
         .sprite-preview {
             width: 64px;
@@ -410,43 +431,43 @@
         <p>Press any key or tap to start</p>
     </div>
     
-    <div id="menu">
-        <h1>Choose Your Prover</h1>
-        <p>Verify all "Unproven Balls" with your "Proof Harpoons". 
-            Each prover has unique abilities. Master all 5 different worlds!</p>
-        <div class="character-grid">
-            <button class="character-btn" onclick="startGame(1, '#3498db', 'blueCharacter')">
-                <div class="sprite-preview" id="preview1"></div>
-                <div class="character-name">Blue Prover</div>
-                <div class="character-desc">Balanced</div>
-            </button>
-            <button class="character-btn" onclick="startGame(2, '#2ecc71', 'greenCharacter')">
-                <div class="sprite-preview" id="preview2"></div>
-                <div class="character-name">Green Prover</div>
-                <div class="character-desc">Jump +30%</div>
-            </button>
-            <button class="character-btn" onclick="startGame(3, '#9b59b6', 'purpleCharacter')">
-                <div class="sprite-preview" id="preview3"></div>
-                <div class="character-name">Purple Prover</div>
-                <div class="character-desc">Fast Shooting</div>
-            </button>
-            <button class="character-btn" onclick="startGame(4, '#ff69b4', 'pinkCharacter')">
-                <div class="sprite-preview" id="preview4"></div>
-                <div class="character-name">Pink Prover</div>
-                <div class="character-desc">Speed +50%</div>
-            </button>
-            <button class="character-btn" onclick="startGame(5, '#f39c12', 'orangeCharacter')">
-                <div class="sprite-preview" id="preview5"></div>
-                <div class="character-name">Orange Prover</div>
-                <div class="character-desc">Points x2</div>
-            </button>
-        </div>
+<div id="menu">
+    <h1>Choose Your Prover</h1>
+    <p>Verify all "Unproven Balls" with your "Proof Harpoons". 
+        Each prover has unique abilities. Master all 5 different worlds!</p>
+    <div class="character-grid">
+        <button class="character-btn" data-character="blue" onclick="startGame(1, '#3498db', 'blueCharacter')">
+            <div class="sprite-preview" id="preview1"></div>
+            <div class="character-name">Blue Prover</div>
+            <div class="character-desc">Balanced</div>
+        </button>
+        <button class="character-btn" data-character="green" onclick="startGame(2, '#2ecc71', 'greenCharacter')">
+            <div class="sprite-preview" id="preview2"></div>
+            <div class="character-name">Green Prover</div>
+            <div class="character-desc">Jump +30%</div>
+        </button>
+        <button class="character-btn" data-character="purple" onclick="startGame(3, '#9b59b6', 'purpleCharacter')">
+            <div class="sprite-preview" id="preview3"></div>
+            <div class="character-name">Purple Prover</div>
+            <div class="character-desc">Fast Shooting</div>
+        </button>
+        <button class="character-btn" data-character="pink" onclick="startGame(4, '#ff69b4', 'pinkCharacter')">
+            <div class="sprite-preview" id="preview4"></div>
+            <div class="character-name">Pink Prover</div>
+            <div class="character-desc">Speed +50%</div>
+        </button>
+        <button class="character-btn" data-character="orange" onclick="startGame(5, '#f39c12', 'orangeCharacter')">
+            <div class="sprite-preview" id="preview5"></div>
+            <div class="character-name">Orange Prover</div>
+            <div class="character-desc">Points x2</div>
+        </button>
     </div>
-    
-    <div id="gameContainer">
-        <canvas id="gameCanvas"></canvas>
-        <button id="fullscreenBtn" onclick="toggleFullscreen()">Fullscreen</button>
-    </div>
+</div>
+
+<div id="gameContainer">
+    <canvas id="gameCanvas"></canvas>
+    <button id="fullscreenBtn" onclick="toggleFullscreen()">Fullscreen</button>
+</div>
     
     <div id="pauseOverlay">PAUSED</div>
     <div id="levelTransition">Level Complete!</div>
