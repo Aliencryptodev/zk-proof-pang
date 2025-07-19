@@ -535,47 +535,104 @@
     </div>
     <script>
         // NUEVO: Sistema de sonido
-        class SoundManager {
-            constructor() {
-                this.sounds = {
-                    shoot: new Audio('sounds/shoot.mp3'),
-                    pop: new Audio('sounds/pop.mp3'),
-                    gameover: new Audio('sounds/gameover.mp3'),
-                    background: new Audio('sounds/background.mp3')
-                };
-                
-                this.sounds.shoot.volume = 0.3;
-                this.sounds.pop.volume = 0.4;
-                this.sounds.gameover.volume = 0.5;
-                this.sounds.background.volume = 0.2;
-                this.sounds.background.loop = true;
-                
-                this.muted = false;
-            }
-            
-            play(soundName) {
-                if (!this.muted && this.sounds[soundName]) {
-                    this.sounds[soundName].currentTime = 0;
-                    this.sounds[soundName].play().catch(e => console.log('Error playing sound:', e));
-                }
-            }
-            
-            toggleMute() {
-                this.muted = !this.muted;
-                if (this.muted) {
-                    this.sounds.background.pause();
-                } else {
-                    this.sounds.background.play().catch(e => console.log('Error playing background:', e));
-                }
-                return this.muted;
-            }
-            
-            startBackground() {
-                if (!this.muted) {
-                    this.sounds.background.play().catch(e => console.log('Error playing background:', e));
-                }
+         class SoundManager {
+    constructor() {
+        this.sounds = {
+            shoot: new Audio('sounds/shoot.mp3'),
+            pop: new Audio('sounds/pop.mp3'),
+            gameover: new Audio('sounds/gameover.mp3'),
+            // Música para cada mundo/artista
+            background1: new Audio('sounds/background-cryptoremixg.mp3'),
+            background2: new Audio('sounds/background-dameloxbt.mp3'),
+            background3: new Audio('sounds/background-exyclee.mp3'),
+            background4: new Audio('sounds/background-hvmidtheprover.mp3'),
+            background5: new Audio('sounds/background-imani_cc.mp3'),
+            background6: new Audio('sounds/background-joesofth3art.mp3'),
+            background7: new Audio('sounds/background-mr888all.mp3'),
+            background8: new Audio('sounds/background-totosha1284.mp3'),
+            background9: new Audio('sounds/background-xtraaxtraa.mp3'),
+            background10: new Audio('sounds/background-0xjorex.mp3'),
+            menuMusic: new Audio('sounds/menu-music.mp3') // Música del menú
+        };
+        
+        // Configurar volúmenes
+        this.sounds.shoot.volume = 0.3;
+        this.sounds.pop.volume = 0.4;
+        this.sounds.gameover.volume = 0.5;
+        this.sounds.menuMusic.volume = 0.2;
+        this.sounds.menuMusic.loop = true;
+        
+        // Configurar todas las músicas de fondo
+        for (let i = 1; i <= 10; i++) {
+            const bgMusic = this.sounds[`background${i}`];
+            if (bgMusic) {
+                bgMusic.volume = 0.2;
+                bgMusic.loop = true;
             }
         }
+        
+        this.muted = false;
+        this.currentBackgroundMusic = null;
+    }
+    
+    play(soundName) {
+        if (!this.muted && this.sounds[soundName]) {
+            this.sounds[soundName].currentTime = 0;
+            this.sounds[soundName].play().catch(e => console.log('Error playing sound:', e));
+        }
+    }
+    
+    toggleMute() {
+        this.muted = !this.muted;
+        if (this.muted) {
+            this.stopAllMusic();
+        } else if (this.currentBackgroundMusic) {
+            this.sounds[this.currentBackgroundMusic].play().catch(e => console.log('Error playing background:', e));
+        }
+        return this.muted;
+    }
+    
+    // Cambiar música según el mundo
+    changeBackgroundMusic(worldNumber) {
+        // Detener música actual
+        this.stopAllMusic();
+        
+        // Iniciar nueva música
+        this.currentBackgroundMusic = `background${worldNumber}`;
+        if (!this.muted && this.sounds[this.currentBackgroundMusic]) {
+            this.sounds[this.currentBackgroundMusic].play().catch(e => {
+                console.log(`Error playing music for world ${worldNumber}:`, e);
+                // Si falla, no hacer nada (silencio es mejor que error)
+            });
+        }
+    }
+    
+    // Iniciar música del menú
+    startMenuMusic() {
+        this.stopAllMusic();
+        this.currentBackgroundMusic = 'menuMusic';
+        if (!this.muted) {
+            this.sounds.menuMusic.play().catch(e => console.log('Error playing menu music:', e));
+        }
+    }
+    
+    // Detener toda la música
+    stopAllMusic() {
+        Object.keys(this.sounds).forEach(key => {
+            if (key.startsWith('background') || key === 'menuMusic') {
+                this.sounds[key].pause();
+                this.sounds[key].currentTime = 0;
+            }
+        });
+    }
+    
+    // Detener solo la música de fondo actual
+    stopBackground() {
+        if (this.currentBackgroundMusic && this.sounds[this.currentBackgroundMusic]) {
+            this.sounds[this.currentBackgroundMusic].pause();
+        }
+    }
+}
 
         const soundManager = new SoundManager();
 
@@ -819,8 +876,10 @@
         hasStarted = true;
         titleScreen.style.display = 'none';
         menu.style.display = 'flex';
-         }
+        // Iniciar música del menú
+        soundManager.startMenuMusic();
         }
+       }
 
         // Event listener para teclado (PC)
         window.addEventListener('keydown', startGameFromTitle);
@@ -1900,49 +1959,50 @@ function createMobileControls() {
                 notification.remove();
             }, 2500);
         }
-       function startGame(id, color, spriteType = null) {
+
+    function startGame(id, color, spriteType = null) {
     menu.style.display = 'none';
     gameContainer.style.display = 'flex';
     controlsInfo.style.display = 'block';
     fullscreenBtn.style.display = 'block';
     
-    // NUEVO: Mostrar controles móviles solo al jugar
-        if (isMobileDevice()) {
+    if (isMobileDevice()) {
         const mobileControls = document.getElementById('mobile-controls');
         if (mobileControls) {
             mobileControls.style.display = 'flex';
         }
-       }
+     }
     
-        player = new Player(id, color, spriteType);
-        score = 0;
-        level = 1;
-        lives = MAX_LIVES;
-        currentWorld = 1;
-        gameOver = false;
-        gameWon = false;
-        paused = false;
-        levelTransitioning = false;
-        invulnerable = false;
-        invulnerableTime = 0;
+     player = new Player(id, color, spriteType);
+     score = 0;
+     level = 1;
+     lives = MAX_LIVES;
+     currentWorld = 1;
+     gameOver = false;
+     gameWon = false;
+     paused = false;
+     levelTransitioning = false;
+     invulnerable = false;
+     invulnerableTime = 0;
     
-        wires = [];
-        bullets = [];
-        balls = [];
-        powerups = [];
-        particles = [];
+      wires = [];
+      bullets = [];
+      balls = [];
+      powerups = [];
+      particles = [];
     
-        loadWorld(1);
-        spawnLevel(1);
+      loadWorld(1); // Esto iniciará la música del mundo 1
+      spawnLevel(1);
     
-        // NUEVO: Iniciar música
-        soundManager.startBackground();
+      // Eliminar soundManager.startBackground() - ahora se maneja en loadWorld
     
-       gameLoop();
-       }
+      gameLoop(); 
+      }
 
-        function loadWorld(worldNum) {
-            currentWorld = worldNum;
+       function loadWorld(worldNum) {
+       currentWorld = worldNum;
+        // Cambiar la música cuando cambia el mundo
+        soundManager.changeBackgroundMusic(worldNum);
         }
 
         function spawnLevel(lvl) {
@@ -2287,43 +2347,42 @@ function createMobileControls() {
 
         // MODIFICADO: showGameOver con botón de Twitter
         function showGameOver() {
-            gameOverScreen.style.display = 'block';
-            document.getElementById('gameOverTitle').textContent = gameWon ? 'Victory! All proofs verified!' : 'Game Over!';
-            document.getElementById('finalScore').textContent = `Score: ${score}`;
-            document.getElementById('levelReached').textContent = `Level: ${level}`;
-            
-            // NUEVO: Sonido game over
-            soundManager.sounds.background.pause();
-            soundManager.play('gameover');
-            
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem('zkProofPangHighScore', highScore);
-            }
-            document.getElementById('highScore').textContent = `High Score: ${highScore}`;
-            
-            // NUEVO: Añadir botón de Twitter si no existe
-            if (!document.getElementById('twitterBtn')) {
-                const twitterBtn = document.createElement('button');
-                twitterBtn.id = 'twitterBtn';
-                twitterBtn.style.cssText = `
-                    padding: 15px 30px;
-                    font-size: 18px;
-                    cursor: pointer;
-                    background: linear-gradient(135deg, #1DA1F2 0%, #0e71c8 100%);
-                    color: white;
-                    border: none;
-                    border-radius: 10px;
-                    margin-top: 10px;
-                    font-family: 'Orbitron', monospace;
-                `;
-                twitterBtn.textContent = 'Share on Twitter';
-                twitterBtn.onclick = shareOnTwitter;
-                
-                const restartBtn = document.getElementById('restartBtn');
-                restartBtn.parentNode.insertBefore(twitterBtn, restartBtn.nextSibling);
-            }
+        gameOverScreen.style.display = 'block';
+        document.getElementById('gameOverTitle').textContent = gameWon ? 'Victory! All proofs verified!' : 'Game Over!';
+        document.getElementById('finalScore').textContent = `Score: ${score}`;
+        document.getElementById('levelReached').textContent = `Level: ${level}`;
+    
+       // Detener toda la música y reproducir game over
+       soundManager.stopAllMusic();
+       soundManager.play('gameover');
+    
+        if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('zkProofPangHighScore', highScore);
         }
+        document.getElementById('highScore').textContent = `High Score: ${highScore}`;
+    
+        if (!document.getElementById('twitterBtn')) {
+        const twitterBtn = document.createElement('button');
+        twitterBtn.id = 'twitterBtn';
+        twitterBtn.style.cssText = `
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #1DA1F2 0%, #0e71c8 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-family: 'Orbitron', monospace;
+        `;
+        twitterBtn.textContent = 'Share on Twitter';
+        twitterBtn.onclick = shareOnTwitter;
+        
+        const restartBtn = document.getElementById('restartBtn');
+        restartBtn.parentNode.insertBefore(twitterBtn, restartBtn.nextSibling);
+        }
+       }
 
          function restartGame() {
          gameOverScreen.style.display = 'none';
