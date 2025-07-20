@@ -752,6 +752,50 @@
         let highScore = localStorage.getItem('zkProofPangHighScore') || 0;
         let animationId = null;
 
+     // Sistema de sprites mejorado
+const spriteImages = {
+    'blue': {
+        normal: new Image(),
+        walk: new Image()
+    },
+    'green': {
+        normal: new Image(),
+        walk: new Image()
+    },
+    'orange': {
+        normal: new Image(),
+        walk: new Image()
+    },
+    'pink': {
+        normal: new Image(),
+        walk: new Image()
+    },
+    'purple': {
+        normal: new Image(),
+        walk: new Image()
+    }
+};
+
+// Cargar sprites mejorados
+function loadSprites() {
+    spriteImages.blue.normal.src = 'assets/sprites/blue-character.png';
+    spriteImages.blue.walk.src = 'assets/sprites/blue-character_walk.png';
+    
+    spriteImages.green.normal.src = 'assets/sprites/green-character.png';
+    spriteImages.green.walk.src = 'assets/sprites/green-character_walk.png';
+    
+    spriteImages.orange.normal.src = 'assets/sprites/orange-character.png';
+    spriteImages.orange.walk.src = 'assets/sprites/orange-character_walk.png';
+    
+    spriteImages.pink.normal.src = 'assets/sprites/pink-character.png';
+    spriteImages.pink.walk.src = 'assets/sprites/pink-character_walk.png';
+    
+    spriteImages.purple.normal.src = 'assets/sprites/purple-character.png';
+    spriteImages.purple.walk.src = 'assets/sprites/purple-character_walk.png';
+}
+
+loadSprites();
+
         // Sprites
         const spriteSheets = {
             blueCharacter: null,
@@ -1095,34 +1139,40 @@
 
         // Player class
         class Player {
-            constructor(id, color, spriteType = null) {
-                this.id = id;
-                this.width = PLAYER_WIDTH;
-                this.height = PLAYER_HEIGHT;
-                this.x = canvas.width / 2 - this.width / 2;
-                this.y = canvas.height - this.height - 20;
-                this.vx = 0;
-                this.vy = 0;
-                this.onGround = true;
-                this.color = color;
-                this.canShoot = true;
-                this.jumpSpeed = BASE_JUMP_SPEED;
-                this.moveSpeed = BASE_MOVE_SPEED;
-                this.harpoonSpeed = HARPOON_SPEED;
-                this.shootCooldown = SHOOT_COOLDOWN;
-                this.scoreMultiplier = 1;
-                this.weaponType = 'normal';
-                this.shieldActive = false;
-                this.frozenEnemies = false;
-                this.spriteType = spriteType;
-                this.spriteSheet = spriteSheets[spriteType];
-                this.facingRight = true;
-                this.activeWires = [];
-                this.maxWires = 2;
-                this.powerupTimers = {};
+        constructor(id, color, spriteType = null) {
+        this.id = id;
+        this.width = PLAYER_WIDTH;
+        this.height = PLAYER_HEIGHT;
+        this.x = canvas.width / 2 - this.width / 2;
+        this.y = canvas.height - this.height - 20;
+        this.vx = 0;
+        this.vy = 0;
+        this.onGround = true;
+        this.color = color;
+        this.canShoot = true;
+        this.jumpSpeed = BASE_JUMP_SPEED;
+        this.moveSpeed = BASE_MOVE_SPEED;
+        this.harpoonSpeed = HARPOON_SPEED;
+        this.shootCooldown = SHOOT_COOLDOWN;
+        this.scoreMultiplier = 1;
+        this.weaponType = 'normal';
+        this.shieldActive = false;
+        this.frozenEnemies = false;
+        this.spriteType = spriteType;
+        this.spriteSheet = spriteSheets[spriteType];
+        this.facingRight = true;
+        // Animación mejorada - ESTAS SON LAS LÍNEAS NUEVAS
+        this.isWalking = false;
+        this.currentSprite = 'normal';
+        this.walkCycle = 0;
+        this.spriteColor = color; // para mapear con spriteImages
+        
+        this.activeWires = [];
+        this.maxWires = 2;
+        this.powerupTimers = {};
 
-                this.idleAnimation = 0;
-                this.breathScale = 1;
+        this.idleAnimation = 0;
+        this.breathScale = 1;
                 
                 // Character bonuses
                 switch(id) {
@@ -1283,20 +1333,35 @@
             }
 
             update() {
-                if (keys['a'] || keys['A'] || keys['ArrowLeft']) {
-                    this.vx = -this.moveSpeed;
-                    this.facingRight = false;
-                } else if (keys['d'] || keys['D'] || keys['ArrowRight']) {
-                    this.vx = this.moveSpeed;
-                    this.facingRight = true;
-                } else {
-                    this.vx *= 0.8;
-                }
+                // Detectar movimiento
+             this.isWalking = false;
+
+             if (keys['a'] || keys['A'] || keys['ArrowLeft']) {
+             this.vx = -this.moveSpeed;
+             this.facingRight = false;
+             this.isWalking = true;
+             } else if (keys['d'] || keys['D'] || keys['ArrowRight']) {
+             this.vx = this.moveSpeed;
+             this.facingRight = true;
+             this.isWalking = true;
+             } else {
+             this.vx *= 0.8;
+             }
+
+            // Cambiar sprite al caminar
+            if (this.isWalking && this.onGround) {
+            this.walkCycle += 0.15;
+            this.currentSprite = Math.sin(this.walkCycle) > 0 ? 'walk' : 'normal';
+            } else {
+            this.currentSprite = 'normal';
+            this.walkCycle = 0;
+    
 
                 if ((keys['w'] || keys['W'] || keys['ArrowUp']) && this.onGround) {
-                    this.vy = this.jumpSpeed;
-                    this.onGround = false;
+                this.vy = this.jumpSpeed;
+                 this.onGround = false;
                 }
+
 
                 this.vy += GRAVITY;
                 this.x += this.vx;
@@ -1376,20 +1441,62 @@
               }
 
               draw() {
-              if (this.spriteSheet) {
-              offCtx.save();
-              offCtx.imageSmoothingEnabled = false;
+    // Mapear color a tipo de sprite
+    const colorToSprite = {
+        '#3498db': 'blue',
+        '#2ecc71': 'green',
+        '#9b59b6': 'purple',
+        '#ff69b4': 'pink',
+        '#f39c12': 'orange'
+    };
+    
+    const spriteType = colorToSprite[this.color] || 'blue';
+    const currentImages = spriteImages[spriteType];
+    
+    if (currentImages && currentImages[this.currentSprite]) {
+        offCtx.save();
+        offCtx.imageSmoothingEnabled = false;
         
-             // Efecto de flotación vertical (sube y baja suavemente)
-             const floatY = Math.sin(this.idleAnimation) * 0.5;
+        const currentImage = currentImages[this.currentSprite];
         
-             // Aplicar escala de respiración
-            const drawWidth = this.width * this.breathScale;
-            const drawHeight = this.height * this.breathScale;
-            const offsetX = (drawWidth - this.width) / 2;
-            const offsetY = (drawHeight - this.height) / 2;
+        // Efecto de flotación
+        const floatY = Math.sin(this.idleAnimation) * 0.5;
         
-            if (!this.facingRight) {
+        // Aplicar escala de respiración
+        const drawWidth = this.width * this.breathScale;
+        const drawHeight = this.height * this.breathScale;
+        const offsetX = (drawWidth - this.width) / 2;
+        const offsetY = (drawHeight - this.height) / 2;
+        
+        if (!this.facingRight) {
+            offCtx.translate(this.x + this.width, this.y + floatY);
+            offCtx.scale(-1, 1);
+            offCtx.drawImage(
+                currentImage, 
+                0, 0, 96, 96, 
+                -offsetX, -offsetY, 
+                drawWidth, drawHeight
+            );
+        } else {
+            offCtx.drawImage(
+                currentImage, 
+                0, 0, 96, 96, 
+                this.x - offsetX, this.y - offsetY + floatY, 
+                drawWidth, drawHeight
+            );
+        }
+        offCtx.restore();
+    } else if (this.spriteSheet) {
+        // Fallback al sistema anterior
+        offCtx.save();
+        offCtx.imageSmoothingEnabled = false;
+        const floatY = Math.sin(this.idleAnimation) * 0.5;
+        const drawWidth = this.width * this.breathScale;
+        const drawHeight = this.height * this.breathScale;
+        const offsetX = (drawWidth - this.width) / 2;
+        const offsetY = (drawHeight - this.height) / 2;
+        
+        if (!this.facingRight) {
             offCtx.translate(this.x + this.width, this.y + floatY);
             offCtx.scale(-1, 1);
             offCtx.drawImage(
@@ -1398,34 +1505,34 @@
                 -offsetX, -offsetY, 
                 drawWidth, drawHeight
             );
-            } else {
+        } else {
             offCtx.drawImage(
                 this.spriteSheet, 
                 0, 0, 96, 96, 
                 this.x - offsetX, this.y - offsetY + floatY, 
                 drawWidth, drawHeight
             );
-            }
-            offCtx.restore();
-            } else {
-            // Fallback si no hay sprite
-           offCtx.fillStyle = this.color;
-           offCtx.fillRect(this.x, this.y, this.width, this.height);
-           }
+        }
+        offCtx.restore();
+    } else {
+        // Fallback final
+        offCtx.fillStyle = this.color;
+        offCtx.fillRect(this.x, this.y, this.width, this.height);
+    }
     
-           // Shield effect (mantener como estaba)
-           if (this.shieldActive) {
-           offCtx.save();
-           offCtx.globalAlpha = 0.3 + Math.sin(Date.now() * 0.005) * 0.1;
-           offCtx.strokeStyle = '#00bcd4';
-           offCtx.lineWidth = 3;
-           offCtx.beginPath();
-           offCtx.arc(this.x + this.width/2, this.y + this.height/2, this.width, 0, Math.PI * 2);
-           offCtx.stroke();
-           offCtx.restore();
+    // Shield effect
+    if (this.shieldActive) {
+        offCtx.save();
+        offCtx.globalAlpha = 0.3 + Math.sin(Date.now() * 0.005) * 0.1;
+        offCtx.strokeStyle = '#00bcd4';
+        offCtx.lineWidth = 3;
+        offCtx.beginPath();
+        offCtx.arc(this.x + this.width/2, this.y + this.height/2, this.width, 0, Math.PI * 2);
+        offCtx.stroke();
+        offCtx.restore();
            }
           }
-         }    
+          
         // Wire class
         class Wire {
             constructor(x, bottomY, color, speed, isGrapple = false, stayOnHit = false) {
