@@ -4,11 +4,39 @@
 
 
 ## Features
-- 5 unique characters with custom sprites
-- Walking animations
+- 5 unique characters with custom sprites and walking animations
+
 - Twitter handles for each player
+
 - Power-ups and special weapons
-- Local multiplayer support
+
+- Immersive sound system with unique background music for each world
+
+- Mobile device support with touch controls and fullscreen option
+
+- 10 distinct game worlds, each with unique aesthetics and music
+
+- Up to 10 challenging levels
+
+
+## How to Play
+The goal is to verify all "Unproven Balls" with your "Proof Harpoons".
+
+- Player 1 (@player1):
+
+- WASD or ←/→: Move
+
+- W or ↑: Jump
+
+- Space: Shoot
+
+- General Controls:
+
+- P: Pause
+
+- F: Toggle Fullscreen
+
+
 
 
 
@@ -47,3 +75,25 @@
 
 ## Credits
 Created by @Aliencryptodev
+
+Special thanks to the artists of the Succinct community for making the artwork and we used it for the backgrounds of the screens :
+
+@cryptoremixg
+
+@dameloxbt
+
+@Exyclee
+
+@HvmidTheProver
+
+@imani_cc
+
+@joesofth3art
+
+@MR888ALL
+
+@Totosha1284
+
+@xtraaxtraa
+
+@0xJorex
