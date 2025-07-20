@@ -74,7 +74,7 @@ The goal is to verify all "Unproven Balls" with your "Proof Harpoons".
 3. Enjoy!
 
 ## Credits
-Created by @Aliencryptodev
+Created by @Aliencryptodev "DoctorDr1on"
 
 Special thanks to the artists of the Succinct community for making the artwork and we used it for the backgrounds of the screens :
 
