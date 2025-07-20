@@ -1,7 +1,7 @@
-# Zk Proof Pang 🎮
+# Zk Proof Pang 🎈
 <img width="3464" height="3464" alt="Devs (3)" src="https://github.com/user-attachments/assets/afc3cd4d-3004-4bc1-9d1c-289715f094dd" />
 
-
+https://zk-proof-pang.vercel.app/
 
 ## Features
 - 5 unique characters with custom sprites and walking animations
