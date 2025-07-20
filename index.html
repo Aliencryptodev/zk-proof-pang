@@ -1355,7 +1355,7 @@ loadSprites();
             } else {
             this.currentSprite = 'normal';
             this.walkCycle = 0;
-    
+            }
 
                 if ((keys['w'] || keys['W'] || keys['ArrowUp']) && this.onGround) {
                 this.vy = this.jumpSpeed;
@@ -1396,7 +1396,7 @@ loadSprites();
                 this.breathScale = 1 + Math.sin(this.idleAnimation) * 0.01;
                 }
 
-            shoot() {
+                shoot() {
                 const shootX = this.x + this.width / 2;
                 const shootY = this.y;
                 
