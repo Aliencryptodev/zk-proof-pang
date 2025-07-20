@@ -1233,10 +1233,29 @@ loadSprites();
                         notificationText = 'Double Points!';
                         break;
                     case 'double':
-                        this.weaponType = 'double';
-                        this.powerupTimers[type] = setTimeout(() => this.weaponType = 'normal', duration);
-                        notificationText = 'Double Shot!';
-                        break;
+                    // Ángulos en grados
+                   const angleLeft = -20; // V hacia la izquierda
+                   const angleRight = 20; // V hacia la derecha
+
+                   // Convertir a radianes
+                   const radLeft = angleLeft * Math.PI / 180;
+                   const radRight = angleRight * Math.PI / 180;
+
+                  // Calcular componentes de velocidad
+                  const vxLeft = Math.sin(radLeft) * this.harpoonSpeed;
+                  const vyLeft = -Math.cos(radLeft) * this.harpoonSpeed;
+
+                  const vxRight = Math.sin(radRight) * this.harpoonSpeed;
+                  const vyRight = -Math.cos(radRight) * this.harpoonSpeed;
+
+                  // Crear los dos wires con ángulo
+                 const wire2 = new Wire(shootX, shootY, this.color, this.harpoonSpeed, false, false, vxLeft, vyLeft);
+                 const wire3 = new Wire(shootX, shootY, this.color, this.harpoonSpeed, false, false, vxRight, vyRight);
+
+                 wires.push(wire2);
+                 wires.push(wire3);
+                  this.activeWires.push(wire2, wire3);
+                  break;
                     case 'machinegun':
                         this.weaponType = 'machinegun';
                         this.shootCooldown = 100;
@@ -1535,47 +1554,55 @@ loadSprites();
         }    // <-- SOLO DEBE QUEDAR UNA LLAVE QUE CIERRA LA CLASE Player
         // Wire class
         class Wire {
-            constructor(x, bottomY, color, speed, isGrapple = false, stayOnHit = false) {
-                this.x = x;
-                this.bottomY = bottomY;
-                this.topY = bottomY;
-                this.speed = speed;
-                this.color = color;
-                this.hooked = false;
-                this.hookTime = 0;
-                this.maxHookTime = isGrapple ? 180 : 45;
-                this.stayOnHit = stayOnHit;
-                this.width = isGrapple ? 5 : 3;
-                this.isGrapple = isGrapple;
-                this.active = true;
-            }
+            constructor(x, bottomY, color, speed, isGrapple = false, stayOnHit = false, vx = 0, vy = null) {
+            this.x = x;
+            this.bottomY = bottomY;
+            this.topY = bottomY;
+            this.speed = speed;
+            this.color = color;
+            this.hooked = false;
+            this.hookTime = 0;
+            this.maxHookTime = isGrapple ? 180 : 45;
+            this.stayOnHit = stayOnHit;
+            this.width = isGrapple ? 5 : 3;
+            this.isGrapple = isGrapple;
+            this.active = true;
+            this.vx = vx;
+            this.vy = vy;
+           }
 
             update() {
-                if (!this.active) return false;
-                
-                if (!this.hooked) {
-                    this.topY -= this.speed;
-                    if (this.topY <= 0) {
-                        this.hooked = true;
-                        this.topY = 0;
-                    }
-                } else {
-                    this.hookTime++;
-                    if (this.hookTime > this.maxHookTime) {
-                        this.topY += this.speed * 2;
-                        if (this.topY >= this.bottomY) {
-                            this.active = false;
-                            return false;
-                        }
-                    }
-                }
-                
-                if (player) {
-                    this.bottomY = player.y;
-                }
-                
-                return true;
+            if (!this.active) return false;
+
+           if (!this.hooked) {
+        // Si tiene ángulo personalizado, usa vx/vy
+        if (this.vx || this.vy) {
+            this.x += this.vx;
+            this.topY += this.vy;
+        } else {
+            this.topY -= this.speed;
+        }
+        if (this.topY <= 0) {
+            this.hooked = true;
+            this.topY = 0;
+        }
+    } else {
+        this.hookTime++;
+        if (this.hookTime > this.maxHookTime) {
+            this.topY += this.speed * 2;
+            if (this.topY >= this.bottomY) {
+                this.active = false;
+                return false;
             }
+        }
+    }
+
+    if (player) {
+        this.bottomY = player.y;
+    }
+
+    return true;
+}
 
             draw() {
                 offCtx.strokeStyle = this.color;
