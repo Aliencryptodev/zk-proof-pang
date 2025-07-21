@@ -727,7 +727,7 @@
         const SHOOT_COOLDOWN = 200;
         const BALL_SIZES = [50, 35, 25, 15];
         const BALL_COLORS = ['#e74c3c', '#f39c12', '#f1c40f', '#2ecc71'];
-        const MAX_LEVEL = 20;
+        const MAX_LEVEL = 10;
         const MAX_LIVES = 5;
         const POWERUP_TYPES = ['speed', 'jump', 'shoot', 'score', 'double', 'machinegun', 'grapple', 'dynamite', 'shield', 'freeze', 'multishot', 'life'];
         const PLAYER_HEIGHT = 96;
@@ -2162,7 +2162,7 @@ function createMobileControls() {
             level = lvl;
             levelTransitioning = false;
             
-        const newWorld = Math.min(10, Math.floor((lvl - 1) / 2) + 1);
+        const newWorld = lvl; // Ahora cada nivel es su propio mundo/artista
         if (newWorld !== currentWorld) {
         loadWorld(newWorld);
         }
@@ -2309,12 +2309,12 @@ function createMobileControls() {
     offCtx.fillStyle = 'rgba(0, 0, 0, 0.7)';
     offCtx.fillRect(0, 0, canvas.width, 50);
     
-    // Lives
+   // Lives
     for (let i = 0; i < MAX_LIVES; i++) {
-        offCtx.fillStyle = i < lives ? '#e74c3c' : 'rgba(231, 76, 60, 0.3)';
-        offCtx.beginPath();
-        offCtx.arc(25 + i * 35, 25, 12, 0, Math.PI * 2);
-        offCtx.fill();
+    offCtx.fillStyle = i < lives ? '#FE11C5' : 'rgba(254, 17, 197, 0.3)';
+    offCtx.beginPath();
+    offCtx.arc(25 + i * 35, 25, 12, 0, Math.PI * 2);
+    offCtx.fill();
     }
     
     // Text
