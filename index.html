@@ -1226,50 +1226,31 @@ loadSprites();
                         notificationText = 'Rapid Fire!';
                         break;
                     case 'score':
-                        this.scoreMultiplier = (this.id === 5 ? 2 : 1) * 2;
-                        this.powerupTimers[type] = setTimeout(() => {
-                            this.scoreMultiplier = (this.id === 5 ? 2 : 1);
-                        }, duration);
+                       this.scoreMultiplier = (this.id === 5 ? 2 : 1) * 2;
+                       this.powerupTimers[type] = setTimeout(() => {
+                       this.scoreMultiplier = (this.id === 5 ? 2 : 1);
+                         }, duration);
                         notificationText = 'Double Points!';
-                        break;
-                    case 'double':
-                    // Ángulos en grados
-                   const angleLeft = -20; // V hacia la izquierda
-                   const angleRight = 20; // V hacia la derecha
-
-                   // Convertir a radianes
-                   const radLeft = angleLeft * Math.PI / 180;
-                   const radRight = angleRight * Math.PI / 180;
-
-                  // Calcular componentes de velocidad
-                  const vxLeft = Math.sin(radLeft) * this.harpoonSpeed;
-                  const vyLeft = -Math.cos(radLeft) * this.harpoonSpeed;
-
-                  const vxRight = Math.sin(radRight) * this.harpoonSpeed;
-                  const vyRight = -Math.cos(radRight) * this.harpoonSpeed;
-
-                  // Crear los dos wires con ángulo
-                 const wire2 = new Wire(shootX, shootY, this.color, this.harpoonSpeed, false, false, vxLeft, vyLeft);
-                 const wire3 = new Wire(shootX, shootY, this.color, this.harpoonSpeed, false, false, vxRight, vyRight);
-
-                 wires.push(wire2);
-                 wires.push(wire3);
-                  this.activeWires.push(wire2, wire3);
-                  break;
-                    case 'machinegun':
-                        this.weaponType = 'machinegun';
-                        this.shootCooldown = 100;
-                        this.powerupTimers[type] = setTimeout(() => { 
-                            this.weaponType = 'normal'; 
-                            this.shootCooldown = SHOOT_COOLDOWN * (this.id === 3 ? 0.6 : 1);
-                        }, duration);
-                        notificationText = 'Machine Gun!';
-                        break;
-                    case 'grapple':
-                        this.weaponType = 'grapple';
-                        this.powerupTimers[type] = setTimeout(() => this.weaponType = 'normal', duration);
-                        notificationText = 'Grappling Hook!';
-                        break;
+                       break;
+                      case 'double':
+                     this.weaponType = 'double';
+                     this.powerupTimers[type] = setTimeout(() => this.weaponType = 'normal', duration);
+                     notificationText = 'Double Harpoon!';
+                     break;
+                case 'machinegun':
+                     this.weaponType = 'machinegun';
+                     this.shootCooldown = 100;
+                      this.powerupTimers[type] = setTimeout(() => { 
+                      this.weaponType = 'normal'; 
+                     this.shootCooldown = SHOOT_COOLDOWN * (this.id === 3 ? 0.6 : 1);
+                       }, duration);
+                      notificationText = 'Machine Gun!';
+                      break;
+                  case 'grapple':
+                    this.weaponType = 'grapple';
+                     this.powerupTimers[type] = setTimeout(() => this.weaponType = 'normal', duration);
+                      notificationText = 'Grappling Hook!';
+                    break;
                     case 'dynamite':
                         const ballsCopy = [...balls];
                         balls = [];
@@ -1429,12 +1410,21 @@ loadSprites();
                         this.activeWires.push(wire1);
                         break;
                     case 'double':
-                        const wire2 = new Wire(shootX - 15, shootY, this.color, this.harpoonSpeed);
-                        const wire3 = new Wire(shootX + 15, shootY, this.color, this.harpoonSpeed);
-                        wires.push(wire2);
-                        wires.push(wire3);
-                        this.activeWires.push(wire2, wire3);
-                        break;
+                  // Disparo doble en V desde el centro
+                  const angleLeft = -20;
+                  const angleRight = 20;
+                  const radLeft = angleLeft * Math.PI / 180;
+                  const radRight = angleRight * Math.PI / 180;
+                  const vxLeft = Math.sin(radLeft) * this.harpoonSpeed;
+                  const vyLeft = -Math.cos(radLeft) * this.harpoonSpeed;
+                  const vxRight = Math.sin(radRight) * this.harpoonSpeed;
+                  const vyRight = -Math.cos(radRight) * this.harpoonSpeed;
+
+                  const wireLeft = new Wire(shootX, shootY, this.color, this.harpoonSpeed, false, false, vxLeft, vyLeft);
+                  const wireRight = new Wire(shootX, shootY, this.color, this.harpoonSpeed, false, false, vxRight, vyRight);
+                  wires.push(wireLeft, wireRight);
+                  this.activeWires.push(wireLeft, wireRight);
+                    break;
                     case 'grapple':
                         const wire4 = new Wire(shootX, shootY, '#ffd600', this.harpoonSpeed * 0.8, true, true);
                         wires.push(wire4);
