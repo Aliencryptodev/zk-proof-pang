@@ -719,7 +719,7 @@
         const BASE_JUMP_SPEED = -15;
         const BASE_MOVE_SPEED = 5;
         const HARPOON_SPEED = 15;
-        const SHOOT_COOLDOWN = 500;
+        const SHOOT_COOLDOWN = 200;
         const BALL_SIZES = [50, 35, 25, 15];
         const BALL_COLORS = ['#e74c3c', '#f39c12', '#f1c40f', '#2ecc71'];
         const MAX_LEVEL = 20;
@@ -1392,9 +1392,6 @@ loadSprites();
                     }
                 }
 
-                this.idleAnimation += 0.01;
-                this.breathScale = 1 + Math.sin(this.idleAnimation) * 0.01;
-                }
 
                 shoot() {
                 const shootX = this.x + this.width / 2;
@@ -1451,89 +1448,76 @@ loadSprites();
     };
     
     const spriteType = colorToSprite[this.color] || 'blue';
-    const currentImages = spriteImages[spriteType];
-    
-    if (currentImages && currentImages[this.currentSprite]) {
-        offCtx.save();
-        offCtx.imageSmoothingEnabled = false;
-        
-        const currentImage = currentImages[this.currentSprite];
-        
-        // Efecto de flotación
-        const floatY = Math.sin(this.idleAnimation) * 0.5;
-        
-        // Aplicar escala de respiración
-        const drawWidth = this.width * this.breathScale;
-        const drawHeight = this.height * this.breathScale;
-        const offsetX = (drawWidth - this.width) / 2;
-        const offsetY = (drawHeight - this.height) / 2;
-        
-        if (!this.facingRight) {
-            offCtx.translate(this.x + this.width, this.y + floatY);
-            offCtx.scale(-1, 1);
-            offCtx.drawImage(
-                currentImage, 
-                0, 0, 96, 96, 
-                -offsetX, -offsetY, 
-                drawWidth, drawHeight
-            );
-        } else {
-            offCtx.drawImage(
-                currentImage, 
-                0, 0, 96, 96, 
-                this.x - offsetX, this.y - offsetY + floatY, 
-                drawWidth, drawHeight
-            );
-        }
-        offCtx.restore();
-    } else if (this.spriteSheet) {
-        // Fallback al sistema anterior
-        offCtx.save();
-        offCtx.imageSmoothingEnabled = false;
-        const floatY = Math.sin(this.idleAnimation) * 0.5;
-        const drawWidth = this.width * this.breathScale;
-        const drawHeight = this.height * this.breathScale;
-        const offsetX = (drawWidth - this.width) / 2;
-        const offsetY = (drawHeight - this.height) / 2;
-        
-        if (!this.facingRight) {
-            offCtx.translate(this.x + this.width, this.y + floatY);
-            offCtx.scale(-1, 1);
-            offCtx.drawImage(
-                this.spriteSheet, 
-                0, 0, 96, 96, 
-                -offsetX, -offsetY, 
-                drawWidth, drawHeight
-            );
-        } else {
-            offCtx.drawImage(
-                this.spriteSheet, 
-                0, 0, 96, 96, 
-                this.x - offsetX, this.y - offsetY + floatY, 
-                drawWidth, drawHeight
-            );
-        }
-        offCtx.restore();
+const currentImages = spriteImages[spriteType];
+
+if (currentImages && currentImages[this.currentSprite]) {
+    offCtx.save();
+    offCtx.imageSmoothingEnabled = false;
+
+    const currentImage = currentImages[this.currentSprite];
+
+    if (!this.facingRight) {
+        offCtx.translate(this.x + this.width, this.y);
+        offCtx.scale(-1, 1);
+        offCtx.drawImage(
+            currentImage,
+            0, 0, 96, 96,
+            0, 0,
+            this.width, this.height
+        );
     } else {
-        // Fallback final
-        offCtx.fillStyle = this.color;
-        offCtx.fillRect(this.x, this.y, this.width, this.height);
+        offCtx.drawImage(
+            currentImage,
+            0, 0, 96, 96,
+            this.x, this.y,
+            this.width, this.height
+        );
     }
-    
-    // Shield effect
-    if (this.shieldActive) {
-        offCtx.save();
-        offCtx.globalAlpha = 0.3 + Math.sin(Date.now() * 0.005) * 0.1;
-        offCtx.strokeStyle = '#00bcd4';
-        offCtx.lineWidth = 3;
-        offCtx.beginPath();
-        offCtx.arc(this.x + this.width/2, this.y + this.height/2, this.width, 0, Math.PI * 2);
-        offCtx.stroke();
-         offCtx.restore();
+    offCtx.restore();
+} else if (this.spriteSheet) {
+    // Fallback al sistema anterior
+    offCtx.save();
+    offCtx.imageSmoothingEnabled = false;
+
+    if (!this.facingRight) {
+        offCtx.translate(this.x + this.width, this.y);
+        offCtx.scale(-1, 1);
+        offCtx.drawImage(
+            this.spriteSheet,
+            0, 0, 96, 96,
+            0, 0,
+            this.width, this.height
+        );
+    } else {
+        offCtx.drawImage(
+            this.spriteSheet,
+            0, 0, 96, 96,
+            this.x, this.y,
+            this.width, this.height
+             );
+            }
+            offCtx.restore();
+            } else {
+             // Fallback final
+             offCtx.fillStyle = this.color;
+             offCtx.fillRect(this.x, this.y, this.width, this.height);
+            }
+
+            // Shield effect
+            if (this.shieldActive) {
+            offCtx.save();
+            offCtx.globalAlpha = 0.3 + Math.sin(Date.now() * 0.005) * 0.1;
+            offCtx.strokeStyle = '#00bcd4';
+            offCtx.lineWidth = 3;
+            offCtx.beginPath();
+            offCtx.arc(this.x + this.width/2, this.y + this.height/2, this.width, 0, Math.PI * 2);
+            offCtx.stroke();
+            offCtx.restore();
            }
           }
         }    // <-- SOLO DEBE QUEDAR UNA LLAVE QUE CIERRA LA CLASE Player
-        // Wire class
+        
+            // Wire class
         class Wire {
             constructor(x, bottomY, color, speed, isGrapple = false, stayOnHit = false) {
                 this.x = x;
