@@ -1398,49 +1398,52 @@ loadSprites();
                 const shootY = this.y;
                 
                 // NUEVO: Sonido de disparo
-                soundManager.play('shoot');
-                
-                switch(this.weaponType) {
-                    case 'normal':
-                        const wire1 = new Wire(shootX, shootY, this.color, this.harpoonSpeed);
-                        wires.push(wire1);
-                        this.activeWires.push(wire1);
-                        break;
-                    case 'double':
-                     // Dispara la primera flecha inmediatamente
-                   const wire1 = new Wire(shootX, shootY, this.color, this.harpoonSpeed);
-                   wires.push(wire1);
-                   this.activeWires.push(wire1);
+soundManager.play('shoot');
 
-                  // Dispara la segunda flecha después de un pequeño retraso (80 ms)
-                  setTimeout(() => {
-                  const wire2 = new Wire(shootX, shootY, this.color, this.harpoonSpeed);
-                  wires.push(wire2);
-                  this.activeWires.push(wire2);
-                  }, 80);
-                   break;
-                    case 'grapple':
-                        const wire4 = new Wire(shootX, shootY, '#ffd600', this.harpoonSpeed * 0.8, true, true);
-                        wires.push(wire4);
-                        this.activeWires.push(wire4);
-                        break;
-                    case 'machinegun':
-                        bullets.push(new Bullet(shootX, shootY, this.color, this.harpoonSpeed * 1.5));
-                        break;
-                    case 'multishot':
-                        for (let angle = -30; angle <= 30; angle += 15) {
-                            const rad = angle * Math.PI / 180;
-                            bullets.push(new Bullet(
-                                shootX, 
-                                shootY, 
-                                this.color, 
-                                this.harpoonSpeed,
-                                Math.sin(rad) * 5,
-                                -Math.cos(rad) * this.harpoonSpeed
-                            ));
-                        }
-                        break;
-                }
+switch(this.weaponType) {
+    case 'normal': {
+        const wire = new Wire(shootX, shootY, this.color, this.harpoonSpeed);
+        wires.push(wire);
+        this.activeWires.push(wire);
+        break;
+    }
+    case 'double': {
+        // Dispara la primera flecha inmediatamente
+        const firstWire = new Wire(shootX, shootY, this.color, this.harpoonSpeed);
+        wires.push(firstWire);
+        this.activeWires.push(firstWire);
+
+        // Dispara la segunda flecha después de un pequeño retraso (80 ms)
+        setTimeout(() => {
+            const secondWire = new Wire(shootX, shootY, this.color, this.harpoonSpeed);
+            wires.push(secondWire);
+            this.activeWires.push(secondWire);
+        }, 80);
+        break;
+    }
+    case 'grapple': {
+        const wire = new Wire(shootX, shootY, '#ffd600', this.harpoonSpeed * 0.8, true, true);
+        wires.push(wire);
+        this.activeWires.push(wire);
+        break;
+    }
+    case 'machinegun':
+        bullets.push(new Bullet(shootX, shootY, this.color, this.harpoonSpeed * 1.5));
+        break;
+    case 'multishot':
+        for (let angle = -30; angle <= 30; angle += 15) {
+            const rad = angle * Math.PI / 180;
+            bullets.push(new Bullet(
+                shootX, 
+                shootY, 
+                this.color, 
+                this.harpoonSpeed,
+                Math.sin(rad) * 5,
+                -Math.cos(rad) * this.harpoonSpeed
+            ));
+        }
+        break;
+            }
               }
 
               draw() {
