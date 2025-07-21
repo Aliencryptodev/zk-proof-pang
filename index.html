@@ -1407,12 +1407,18 @@ loadSprites();
                         this.activeWires.push(wire1);
                         break;
                     case 'double':
-                        const wire2 = new Wire(shootX - 15, shootY, this.color, this.harpoonSpeed);
-                        const wire3 = new Wire(shootX + 15, shootY, this.color, this.harpoonSpeed);
-                        wires.push(wire2);
-                        wires.push(wire3);
-                        this.activeWires.push(wire2, wire3);
-                        break;
+                     // Dispara la primera flecha inmediatamente
+                   const wire1 = new Wire(shootX, shootY, this.color, this.harpoonSpeed);
+                   wires.push(wire1);
+                   this.activeWires.push(wire1);
+
+                  // Dispara la segunda flecha después de un pequeño retraso (80 ms)
+                  setTimeout(() => {
+                  const wire2 = new Wire(shootX, shootY, this.color, this.harpoonSpeed);
+                  wires.push(wire2);
+                  this.activeWires.push(wire2);
+                  }, 80);
+                   break;
                     case 'grapple':
                         const wire4 = new Wire(shootX, shootY, '#ffd600', this.harpoonSpeed * 0.8, true, true);
                         wires.push(wire4);
