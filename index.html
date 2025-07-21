@@ -736,6 +736,25 @@
         const BALL_MIN_SPEED = 1.5;
         const BALL_MAX_SPEED = 4;
 
+        const powerupImages = {
+        speed: new Image(),
+        jump: new Image(),
+        shoot: new Image(),
+        score: new Image(),
+        double: new Image(),
+        machinegun: new Image(),
+        grapple: new Image(),
+        dynamite: new Image(),
+        shield: new Image(),
+        freeze: new Image(),
+        multishot: new Image(),
+        life: new Image()
+        };
+
+        for (let key in powerupImages) {
+        powerupImages[key].src = `assets/powerups/${key}.png`;
+         }
+  
         // Game state
         let player = null;
         let wires = [];
@@ -1814,31 +1833,28 @@ if (currentImages && currentImages[this.currentSprite]) {
             }
 
             draw() {
-                const opacity = this.groundTime > POWERUP_GROUND_TIME - 60 ? 
-                    (POWERUP_GROUND_TIME - this.groundTime) / 60 : 1;
-                
-                offCtx.save();
-                offCtx.globalAlpha = opacity;
-                offCtx.translate(this.x, this.y + this.bounce);
-                offCtx.rotate(this.rotation);
-                
-                offCtx.beginPath();
-                offCtx.arc(0, 0, this.radius, 0, Math.PI * 2);
-                offCtx.fillStyle = this.colors[this.type];
-                offCtx.fill();
-                
-                offCtx.strokeStyle = 'white';
-                offCtx.lineWidth = 2;
-                offCtx.stroke();
-                
-                offCtx.rotate(-this.rotation);
-                offCtx.fillStyle = 'white';
-                offCtx.font = 'bold 24px Arial';
-                offCtx.textAlign = 'center';
-                offCtx.textBaseline = 'middle';
-                offCtx.fillText(this.icons[this.type], 0, 0);
-                
-                offCtx.restore();
+    const opacity = this.groundTime > POWERUP_GROUND_TIME - 60 ? 
+        (POWERUP_GROUND_TIME - this.groundTime) / 60 : 1;
+
+    offCtx.save();
+    offCtx.globalAlpha = opacity;
+    offCtx.translate(this.x, this.y + this.bounce);
+    offCtx.rotate(this.rotation);
+
+    // Dibuja la imagen del powerup
+    const img = powerupImages[this.type];
+    if (img && img.complete) {
+        offCtx.drawImage(
+            img,
+            -this.radius, // x (centrado)
+            -this.radius, // y (centrado)
+            this.radius * 2,
+            this.radius * 2
+        );
+    }
+    // Si no hay imagen cargada, no dibuja nada más.
+
+    offCtx.restore();
             }
         }
 
