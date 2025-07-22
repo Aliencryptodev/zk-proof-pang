@@ -719,7 +719,8 @@
          const spriteImages = {
          'blue': {
          normal: new Image(),
-         walk: new Image()
+         walk: new Image(),
+         jump: new Image()
          },
          'green': {
          normal: new Image(),
@@ -743,6 +744,7 @@
          function loadSprites() {
          spriteImages.blue.normal.src = 'assets/sprites/blue-character.png';
          spriteImages.blue.walk.src = 'assets/sprites/blue-character_walk.png';
+         spriteImages.blue.jump.src = 'assets/sprites/blue_jump.png';
          
          spriteImages.green.normal.src = 'assets/sprites/green-character.png';
          spriteImages.green.walk.src = 'assets/sprites/green-character_walk.png';
@@ -1101,61 +1103,67 @@
          }
          
          // Player class
-         class Player {
-         constructor(id, color, spriteType = null) {
-         this.id = id;
-         this.width = PLAYER_WIDTH;
-         this.height = PLAYER_HEIGHT;
-         this.x = canvas.width / 2 - this.width / 2;
-         this.y = canvas.height - this.height - 20;
-         this.vx = 0;
-         this.vy = 0;
-         this.onGround = true;
-         this.color = color;
-         this.canShoot = true;
-         this.jumpSpeed = BASE_JUMP_SPEED;
-         this.moveSpeed = BASE_MOVE_SPEED;
-         this.harpoonSpeed = HARPOON_SPEED;
-         this.shootCooldown = SHOOT_COOLDOWN;
-         this.scoreMultiplier = 1;
-         this.weaponType = 'normal';
-         this.shieldActive = false;
-         this.frozenEnemies = false;
-         this.spriteType = spriteType;
-         this.spriteSheet = spriteSheets[spriteType];
-         this.facingRight = true;
-         // Animación mejorada - ESTAS SON LAS LÍNEAS NUEVAS
-         this.isWalking = false;
-         this.currentSprite = 'normal';
-         this.walkCycle = 0;
-         this.spriteColor = color; // para mapear con spriteImages
-         
-         this.activeWires = [];
-         this.maxWires = 2;
-         this.powerupTimers = {};
-         
-         this.idleAnimation = 0;
-         this.breathScale = 1;
-                 
-                 // Character bonuses
-                 switch(id) {
-                     case 1: // Blue - Balanced
-                         break;
-                     case 2: // Green - Jump
-                         this.jumpSpeed *= 1.3;
-                         break;
-                     case 3: // Purple - Fast shooting
-                         this.shootCooldown *= 0.6;
-                         this.harpoonSpeed *= 1.2;
-                         break;
-                     case 4: // Pink - Speed
-                         this.moveSpeed *= 1.5;
-                         break;
-                     case 5: // Orange - Extra points
-                         this.scoreMultiplier = 2;
-                         break;
-                 }
-             }
+class Player {
+  constructor(id, color, spriteType = null) {
+    this.id = id;
+    this.width = PLAYER_WIDTH;
+    this.height = PLAYER_HEIGHT;
+    this.x = canvas.width / 2 - this.width / 2;
+    this.y = canvas.height - this.height - 20;
+    this.vx = 0;
+    this.vy = 0;
+    this.onGround = true;
+    this.color = color;
+    this.canShoot = true;
+    this.jumpSpeed = BASE_JUMP_SPEED;
+    this.moveSpeed = BASE_MOVE_SPEED;
+    this.harpoonSpeed = HARPOON_SPEED;
+    this.shootCooldown = SHOOT_COOLDOWN;
+    this.scoreMultiplier = 1;
+    this.weaponType = 'normal';
+    this.shieldActive = false;
+    this.frozenEnemies = false;
+    this.spriteType = spriteType;
+    this.spriteSheet = spriteSheets[spriteType];
+    this.facingRight = true;
+    // Animación mejorada
+    this.isWalking = false;
+    this.currentSprite = 'normal';
+    this.walkCycle = 0;
+    this.spriteColor = color;
+
+    this.activeWires = [];
+    this.maxWires = 2;
+    this.powerupTimers = {};
+
+    this.idleAnimation = 0;
+    this.breathScale = 1;
+
+    // === VARIABLES PARA ANIMACIÓN DE SALTO ===
+    this.isJumping = false;
+    this.jumpFrame = 0;
+    this.jumpFrameTime = 0;
+    this.jumpFrameMax = 6; // 6 frames en el sprite sheet de salto
+
+    // Character bonuses
+    switch(id) {
+      case 1: // Blue - Balanced
+        break;
+      case 2: // Green - Jump
+        this.jumpSpeed *= 1.3;
+        break;
+      case 3: // Purple - Fast shooting
+        this.shootCooldown *= 0.6;
+        this.harpoonSpeed *= 1.2;
+        break;
+      case 4: // Pink - Speed
+        this.moveSpeed *= 1.5;
+        break;
+      case 5: // Orange - Extra points
+        this.scoreMultiplier = 2;
+        break;
+    }
+  }
          
              applyPowerup(type) {
                  const duration = 10000;
@@ -1295,66 +1303,91 @@
                  score += Math.floor(10 * (ball.sizeIndex + 1) * this.scoreMultiplier);
              }
          
-             update() {
-                 // Detectar movimiento
-              this.isWalking = false;
-         
-              if (keys['a'] || keys['A'] || keys['ArrowLeft']) {
-              this.vx = -this.moveSpeed;
-              this.facingRight = false;
-              this.isWalking = true;
-              } else if (keys['d'] || keys['D'] || keys['ArrowRight']) {
-              this.vx = this.moveSpeed;
-              this.facingRight = true;
-              this.isWalking = true;
-              } else {
-              this.vx *= 0.8;
-              }
-         
-             // Cambiar sprite al caminar
-             if (this.isWalking && this.onGround) {
-             this.walkCycle += 0.15;
-             this.currentSprite = Math.sin(this.walkCycle) > 0 ? 'walk' : 'normal';
-             } else {
-             this.currentSprite = 'normal';
-             this.walkCycle = 0;
-             }
-         
-                 if ((keys['w'] || keys['W'] || keys['ArrowUp']) && this.onGround) {
-                 this.vy = this.jumpSpeed;
-                  this.onGround = false;
-                 }
-         
-         
-                 this.vy += GRAVITY;
-                 this.x += this.vx;
-                 this.y += this.vy;
-         
-                 if (this.x < 0) this.x = 0;
-                 if (this.x + this.width > canvas.width) this.x = canvas.width - this.width;
-         
-                 this.onGround = false;
-                 for (let plat of platforms) {
-                     if (this.vy > 0 &&
-                         this.y + this.height > plat.y && 
-                         this.y + this.height - this.vy <= plat.y &&
-                         this.x + this.width > plat.x && 
-                         this.x < plat.x + plat.width) {
-                         this.y = plat.y - this.height;
-                         this.vy = 0;
-                         this.onGround = true;
-                     }
-                 }
-         
-                 if (keys[' '] && this.canShoot) {
-                     const canShootWire = this.weaponType === 'machinegun' || this.weaponType === 'multishot' || this.activeWires.length < this.maxWires;
-                     if (canShootWire) {
-                         this.shoot();
-                         this.canShoot = false;
-                         setTimeout(() => this.canShoot = true, this.shootCooldown);
-                     }
-                    }
-                 }
+            update() {
+    // Detectar movimiento
+    this.isWalking = false;
+
+    if (keys['a'] || keys['A'] || keys['ArrowLeft']) {
+        this.vx = -this.moveSpeed;
+        this.facingRight = false;
+        this.isWalking = true;
+    } else if (keys['d'] || keys['D'] || keys['ArrowRight']) {
+        this.vx = this.moveSpeed;
+        this.facingRight = true;
+        this.isWalking = true;
+    } else {
+        this.vx *= 0.8;
+    }
+
+    // Cambiar sprite al caminar
+    if (this.isWalking && this.onGround) {
+        this.walkCycle += 0.15;
+        this.currentSprite = Math.sin(this.walkCycle) > 0 ? 'walk' : 'normal';
+    } else {
+        this.currentSprite = 'normal';
+        this.walkCycle = 0;
+    }
+
+    // === LÓGICA DE INICIO DE SALTO (y animación) SOLO AZUL ===
+    if ((keys['w'] || keys['W'] || keys['ArrowUp']) && this.onGround) {
+        this.vy = this.jumpSpeed;
+        this.onGround = false;
+        // Solo para azul: inicia animación de salto
+        if (this.spriteColor === 'blue') {
+            this.isJumping = true;
+            this.jumpFrame = 0;
+            this.jumpFrameTime = 0;
+        }
+    }
+
+    // === LÓGICA DE AVANCE DE FRAMES DE SALTO SOLO AZUL ===
+    if (this.isJumping && this.spriteColor === 'blue') {
+        this.jumpFrameTime++;
+        if (this.jumpFrameTime > 6) { // Puedes ajustar el 6 para velocidad
+            this.jumpFrame++;
+            this.jumpFrameTime = 0;
+            if (this.jumpFrame >= this.jumpFrameMax) {
+                this.jumpFrame = this.jumpFrameMax - 1;
+            }
+        }
+        // Cuando aterriza, reinicia animación de salto
+        if (this.onGround && this.vy >= 0) {
+            this.isJumping = false;
+            this.jumpFrame = 0;
+            this.jumpFrameTime = 0;
+        }
+    }
+
+    // Físicas normales
+    this.vy += GRAVITY;
+    this.x += this.vx;
+    this.y += this.vy;
+
+    if (this.x < 0) this.x = 0;
+    if (this.x + this.width > canvas.width) this.x = canvas.width - this.width;
+
+    this.onGround = false;
+    for (let plat of platforms) {
+        if (this.vy > 0 &&
+            this.y + this.height > plat.y && 
+            this.y + this.height - this.vy <= plat.y &&
+            this.x + this.width > plat.x && 
+            this.x < plat.x + plat.width) {
+            this.y = plat.y - this.height;
+            this.vy = 0;
+            this.onGround = true;
+        }
+    }
+
+    if (keys[' '] && this.canShoot) {
+        const canShootWire = this.weaponType === 'machinegun' || this.weaponType === 'multishot' || this.activeWires.length < this.maxWires;
+        if (canShootWire) {
+            this.shoot();
+            this.canShoot = false;
+            setTimeout(() => this.canShoot = true, this.shootCooldown);
+        }
+    }
+}
          
                  shoot() {
                  const shootX = this.x + this.width / 2;
@@ -1409,82 +1442,106 @@
              }
                }
          
-               draw() {
-         // Mapear color a tipo de sprite
-         const colorToSprite = {
-         '#3498db': 'blue',
-         '#2ecc71': 'green',
-         '#9b59b6': 'purple',
-         '#ff69b4': 'pink',
-         '#f39c12': 'orange'
-         };
-         
-         const spriteType = colorToSprite[this.color] || 'blue';
-         const currentImages = spriteImages[spriteType];
-         
-         if (currentImages && currentImages[this.currentSprite]) {
-         offCtx.save();
-         offCtx.imageSmoothingEnabled = false;
-         
-         const currentImage = currentImages[this.currentSprite];
-         
-         if (!this.facingRight) {
-         offCtx.translate(this.x + this.width, this.y);
-         offCtx.scale(-1, 1);
-         offCtx.drawImage(
-             currentImage,
-             0, 0, 96, 96,
-             0, 0,
-             this.width, this.height
-         );
-         } else {
-         offCtx.drawImage(
-             currentImage,
-             0, 0, 96, 96,
-             this.x, this.y,
-             this.width, this.height
-         );
-         }
-         offCtx.restore();
-         } else if (this.spriteSheet) {
-         // Fallback al sistema anterior
-         offCtx.save();
-         offCtx.imageSmoothingEnabled = false;
-         
-         if (!this.facingRight) {
-         offCtx.translate(this.x + this.width, this.y);
-         offCtx.scale(-1, 1);
-         offCtx.drawImage(
-             this.spriteSheet,
-             0, 0, 96, 96,
-             0, 0,
-             this.width, this.height
-         );
-         } else {
-         offCtx.drawImage(
-             this.spriteSheet,
-             0, 0, 96, 96,
-             this.x, this.y,
-             this.width, this.height
-              );
-             }
-             offCtx.restore();
-             } else {
-              // Fallback final
-              offCtx.fillStyle = this.color;
-              offCtx.fillRect(this.x, this.y, this.width, this.height);
-             }
-         
-             // Shield effect
-             if (this.shieldActive) {
-             offCtx.save();
-             offCtx.globalAlpha = 0.3 + Math.sin(Date.now() * 0.005) * 0.1;
-             offCtx.strokeStyle = '#00bcd4';
-             offCtx.lineWidth = 3;
-             offCtx.beginPath();
-             offCtx.arc(this.x + this.width/2, this.y + this.height/2, this.width, 0, Math.PI * 2);
-             offCtx.stroke();
-             offCtx.restore();
+         draw() {
+    // Mapear color a tipo de sprite
+    const colorToSprite = {
+        '#3498db': 'blue',
+        '#2ecc71': 'green',
+        '#9b59b6': 'purple',
+        '#ff69b4': 'pink',
+        '#f39c12': 'orange'
+    };
+
+    const spriteType = colorToSprite[this.color] || 'blue';
+    const currentImages = spriteImages[spriteType];
+
+    // === BLOQUE DE ANIMACIÓN DE SALTO SOLO AZUL ===
+    if (this.isJumping && this.spriteColor === 'blue' && currentImages && currentImages.jump) {
+        if (!this.facingRight) {
+            offCtx.save();
+            offCtx.translate(this.x + this.width, this.y);
+            offCtx.scale(-1, 1);
+            offCtx.drawImage(
+                currentImages.jump,
+                this.jumpFrame * 96, 0, 96, 96,
+                0, 0, this.width, this.height
+            );
+            offCtx.restore();
+        } else {
+            offCtx.drawImage(
+                currentImages.jump,
+                this.jumpFrame * 96, 0, 96, 96,
+                this.x, this.y, this.width, this.height
+            );
+        }
+        // No dibuja nada más si está saltando
+        return;
+    }
+
+    // --- Aquí sigue tu lógica original de dibujado (walk/normal etc) ---
+    if (currentImages && currentImages[this.currentSprite]) {
+        offCtx.save();
+        offCtx.imageSmoothingEnabled = false;
+
+        const currentImage = currentImages[this.currentSprite];
+
+        if (!this.facingRight) {
+            offCtx.translate(this.x + this.width, this.y);
+            offCtx.scale(-1, 1);
+            offCtx.drawImage(
+                currentImage,
+                0, 0, 96, 96,
+                0, 0,
+                this.width, this.height
+            );
+        } else {
+            offCtx.drawImage(
+                currentImage,
+                0, 0, 96, 96,
+                this.x, this.y,
+                this.width, this.height
+            );
+        }
+        offCtx.restore();
+    } else if (this.spriteSheet) {
+        // Fallback al sistema anterior
+        offCtx.save();
+        offCtx.imageSmoothingEnabled = false;
+
+        if (!this.facingRight) {
+            offCtx.translate(this.x + this.width, this.y);
+            offCtx.scale(-1, 1);
+            offCtx.drawImage(
+                this.spriteSheet,
+                0, 0, 96, 96,
+                0, 0,
+                this.width, this.height
+            );
+        } else {
+            offCtx.drawImage(
+                this.spriteSheet,
+                0, 0, 96, 96,
+                this.x, this.y,
+                this.width, this.height
+            );
+        }
+        offCtx.restore();
+    } else {
+        // Fallback final
+        offCtx.fillStyle = this.color;
+        offCtx.fillRect(this.x, this.y, this.width, this.height);
+    }
+
+    // Shield effect (déjalo igual)
+    if (this.shieldActive) {
+        offCtx.save();
+        offCtx.globalAlpha = 0.3 + Math.sin(Date.now() * 0.005) * 0.1;
+        offCtx.strokeStyle = '#00bcd4';
+        offCtx.lineWidth = 3;
+        offCtx.beginPath();
+        offCtx.arc(this.x + this.width/2, this.y + this.height/2, this.width, 0, Math.PI * 2);
+        offCtx.stroke();
+        offCtx.restore();
             }
             } // <-- SOLO DEBE QUEDAR UNA LLAVE QUE CIERRA LA CLASE Player
             }
