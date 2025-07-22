@@ -437,7 +437,7 @@
                <div class="sprite-preview" id="preview2"></div>
                <div class="character-name">Green</div>
                <div class="character-desc">@fakedev9999</div>
-               <div class="character-desc">Jump +30%</div>
+               <div class="character-desc">Fast Shooting/div>
             </button>
             <button class="character-btn" data-character="purple" onclick="startGame(3, '#9b59b6', 'purpleCharacter')">
                <div class="sprite-preview" id="preview3"></div>
@@ -1157,15 +1157,16 @@ class Player {
     switch(id) {
       case 1: // Blue - Balanced
         break;
-      case 2: // Green - Jump
-        this.jumpSpeed *= 1.3;
+      case 2: // Green - Fast fire
+        this.shootCooldown *= 0.6;
+        this.harpoonSpeed *= 1.2;
         break;
       case 3: // Purple - Fast shooting
         this.shootCooldown *= 0.6;
         this.harpoonSpeed *= 1.2;
         break;
       case 4: // Pink - Speed
-        this.moveSpeed *= 1.5;
+        this.moveSpeed *= 1.1;
         break;
       case 5: // Orange - Extra points
         this.scoreMultiplier = 2;
