@@ -748,16 +748,21 @@ function loadSprites() {
 
     spriteImages.green.normal.src = 'assets/sprites/green-character.png';
     spriteImages.green.walk.src = 'assets/sprites/green-character_walk.png';
+    spriteImages.green.jump = new Image();
+    spriteImages.green.jump.src = 'assets/sprites/green_jump.png';
 
     spriteImages.orange.normal.src = 'assets/sprites/orange-character.png';
     spriteImages.orange.walk.src = 'assets/sprites/orange-character_walk.png';
+    spriteImages.orange.jump = new Image();
+    spriteImages.orange.jump.src = 'assets/sprites/orange_jump.png';
 
     spriteImages.pink.normal.src = 'assets/sprites/pink-character.png';
     spriteImages.pink.walk.src = 'assets/sprites/pink-character_walk.png';
+    spriteImages.pink.jump = new Image();
+    spriteImages.pink.jump.src = 'assets/sprites/pink_jump.png';
 
     spriteImages.purple.normal.src = 'assets/sprites/purple-character.png';
     spriteImages.purple.walk.src = 'assets/sprites/purple-character_walk.png';
-    // <<--- AGREGA ESTAS DOS LÍNEAS:
     spriteImages.purple.jump = new Image();
     spriteImages.purple.jump.src = 'assets/sprites/purple_jump.png';
 }
@@ -1331,7 +1336,7 @@ update() {
         this.walkCycle = 0;
     }
 
-    // --- Mapping para spriteType ---
+    // Mapping para spriteType
     const colorToSprite = {
         '#3498db': 'blue',
         '#2ecc71': 'green',
@@ -1341,19 +1346,34 @@ update() {
     };
     const spriteType = colorToSprite[this.color] || 'blue';
 
-    // === INICIO DE SALTO (y animación) AZUL/MORADO ===
+    // Inicio de salto y animación para todos los colores
     if ((keys['w'] || keys['W'] || keys['ArrowUp']) && this.onGround) {
         this.vy = this.jumpSpeed;
         this.onGround = false;
-        if (spriteType === 'blue' || spriteType === 'purple') {
+        if (
+            spriteType === 'blue' ||
+            spriteType === 'green' ||
+            spriteType === 'orange' ||
+            spriteType === 'pink' ||
+            spriteType === 'purple'
+        ) {
             this.isJumping = true;
             this.jumpFrame = 0;
             this.jumpFrameTime = 0;
         }
     }
 
-    // === AVANCE DE FRAMES DE SALTO SOLO AZUL/MORADO ===
-    if (this.isJumping && (spriteType === 'blue' || spriteType === 'purple')) {
+    // Avance de frames de salto para todos los colores
+    if (
+        this.isJumping &&
+        (
+            spriteType === 'blue' ||
+            spriteType === 'green' ||
+            spriteType === 'orange' ||
+            spriteType === 'pink' ||
+            spriteType === 'purple'
+        )
+    ) {
         this.jumpFrameTime++;
         if (this.jumpFrameTime > 6) {
             this.jumpFrame++;
@@ -1380,9 +1400,9 @@ update() {
     this.onGround = false;
     for (let plat of platforms) {
         if (this.vy > 0 &&
-            this.y + this.height > plat.y && 
+            this.y + this.height > plat.y &&
             this.y + this.height - this.vy <= plat.y &&
-            this.x + this.width > plat.x && 
+            this.x + this.width > plat.x &&
             this.x < plat.x + plat.width) {
             this.y = plat.y - this.height;
             this.vy = 0;
@@ -1390,6 +1410,7 @@ update() {
         }
     }
 
+    // Disparo
     if (keys[' '] && this.canShoot) {
         const canShootWire = this.weaponType === 'machinegun' || this.weaponType === 'multishot' || this.activeWires.length < this.maxWires;
         if (canShootWire) {
@@ -1454,7 +1475,7 @@ update() {
                }
          
 draw() {
-    // Mapear color a tipo de sprite
+    // Mapping para spriteType
     const colorToSprite = {
         '#3498db': 'blue',
         '#2ecc71': 'green',
@@ -1462,15 +1483,21 @@ draw() {
         '#ff69b4': 'pink',
         '#f39c12': 'orange'
     };
-
     const spriteType = colorToSprite[this.color] || 'blue';
     const currentImages = spriteImages[spriteType];
 
-    // === ANIMACIÓN DE SALTO AZUL Y MORADO ===
+    // Animación de salto para todos los colores
     if (
         this.isJumping &&
-        (spriteType === 'blue' || spriteType === 'purple') &&
-        currentImages && currentImages.jump
+        (
+            spriteType === 'blue' ||
+            spriteType === 'green' ||
+            spriteType === 'orange' ||
+            spriteType === 'pink' ||
+            spriteType === 'purple'
+        ) &&
+        currentImages && currentImages.jump &&
+        currentImages.jump.complete && currentImages.jump.naturalWidth > 0
     ) {
         if (!this.facingRight) {
             offCtx.save();
@@ -1489,11 +1516,10 @@ draw() {
                 this.x, this.y, this.width, this.height
             );
         }
-        // No dibuja nada más si está saltando
         return;
     }
 
-    // --- Lógica original de dibujado (walk/normal etc) ---
+    // Dibujo normal (caminar/parado)
     if (currentImages && currentImages[this.currentSprite]) {
         offCtx.save();
         offCtx.imageSmoothingEnabled = false;
@@ -1519,7 +1545,7 @@ draw() {
         }
         offCtx.restore();
     } else if (this.spriteSheet) {
-        // Fallback al sistema anterior
+        // Fallback sistema anterior
         offCtx.save();
         offCtx.imageSmoothingEnabled = false;
 
@@ -1547,7 +1573,7 @@ draw() {
         offCtx.fillRect(this.x, this.y, this.width, this.height);
     }
 
-    // Shield effect
+    // Efecto de escudo
     if (this.shieldActive) {
         offCtx.save();
         offCtx.globalAlpha = 0.3 + Math.sin(Date.now() * 0.005) * 0.1;
